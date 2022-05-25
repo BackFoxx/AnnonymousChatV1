@@ -3,6 +3,7 @@ package toyproject.annonymouschat.chat.repository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.*;
+import org.springframework.stereotype.Repository;
 import toyproject.annonymouschat.chat.dto.ChatSaveDto;
 import toyproject.annonymouschat.chat.dto.MyChatPostBoxResponseDto;
 import toyproject.annonymouschat.chat.model.Chat;
@@ -13,6 +14,7 @@ import java.sql.*;
 import java.util.List;
 
 @Slf4j
+@Repository
 public class ChatRepositoryImpl implements ChatRepository{
 
     private DataSource dataSource = DBConnectionUtil.getDataSource();

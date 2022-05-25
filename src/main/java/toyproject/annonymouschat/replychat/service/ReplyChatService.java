@@ -1,13 +1,17 @@
 package toyproject.annonymouschat.replychat.service;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 import toyproject.annonymouschat.replychat.dto.*;
 import toyproject.annonymouschat.replychat.repository.ReplyChatRepository;
 import toyproject.annonymouschat.replychat.repository.ReplyChatRepositoryImpl;
 
 import java.util.List;
 
+@RequiredArgsConstructor
+@Service
 public class ReplyChatService {
-    private ReplyChatRepository repository = new ReplyChatRepositoryImpl();
+    private final ReplyChatRepository repository;
 
     public void saveReply(ReplyChatSaveDto dto) {
         repository.saveReply(dto);

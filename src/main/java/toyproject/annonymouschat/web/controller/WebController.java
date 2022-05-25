@@ -1,5 +1,6 @@
 package toyproject.annonymouschat.web.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -18,12 +19,13 @@ import toyproject.annonymouschat.replychat.service.ReplyChatService;
 import java.util.List;
 
 @Slf4j
+@RequiredArgsConstructor
 @RequestMapping("/v/")
 @Controller
 public class WebController {
 
-    private ChatService chatService = new ChatService();
-    private ReplyChatService replyChatService = new ReplyChatService();
+    private final ChatService chatService;
+    private final ReplyChatService replyChatService;
 
     @RequestMapping
     public String index() {

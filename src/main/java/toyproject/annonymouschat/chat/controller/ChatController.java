@@ -1,5 +1,6 @@
 package toyproject.annonymouschat.chat.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
@@ -14,10 +15,12 @@ import toyproject.annonymouschat.chat.service.ChatService;
 import toyproject.annonymouschat.config.exception.WrongFormException;
 
 @Slf4j
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/v/")
 public class ChatController {
-    private ChatService chatService = new ChatService();
+
+    private final ChatService chatService;
 
     @GetMapping("chat/postbox/random")
     public Chat getRandom(@RequestAttribute("user") User user) {

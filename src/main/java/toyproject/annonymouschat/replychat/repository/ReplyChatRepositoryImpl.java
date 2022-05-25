@@ -2,6 +2,7 @@ package toyproject.annonymouschat.replychat.repository;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Repository;
 import toyproject.annonymouschat.replychat.dto.*;
 import toyproject.annonymouschat.config.DBConnectionUtil;
 
@@ -9,6 +10,7 @@ import javax.sql.DataSource;
 import java.util.List;
 
 @Slf4j
+@Repository
 public class ReplyChatRepositoryImpl implements ReplyChatRepository {
 
     private DataSource dataSource = DBConnectionUtil.getDataSource();

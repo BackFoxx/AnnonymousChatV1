@@ -1,23 +1,24 @@
 package toyproject.annonymouschat.replychat.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import toyproject.annonymouschat.User.model.User;
-import toyproject.annonymouschat.config.controller.ModelView;
 import toyproject.annonymouschat.config.exception.WrongFormException;
 import toyproject.annonymouschat.replychat.dto.*;
 import toyproject.annonymouschat.replychat.service.ReplyChatService;
 
-import java.io.IOException;
 import java.util.List;
 
 @Slf4j
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/v")
 public class ReplyController {
-    private ReplyChatService replyChatService = new ReplyChatService();
+
+    private final ReplyChatService replyChatService;
 
     @GetMapping("/reply/find")
     public ResponseEntity repliesByChatId(@ModelAttribute RepliesByChatIdDto dto) {

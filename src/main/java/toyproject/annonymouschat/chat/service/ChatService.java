@@ -1,5 +1,7 @@
 package toyproject.annonymouschat.chat.service;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 import toyproject.annonymouschat.chat.dto.ChatDeleteDto;
 import toyproject.annonymouschat.chat.dto.ChatSaveDto;
 import toyproject.annonymouschat.chat.dto.MyChatPostBoxResponseDto;
@@ -9,8 +11,10 @@ import toyproject.annonymouschat.chat.repository.ChatRepositoryImpl;
 
 import java.util.List;
 
+@Service
+@RequiredArgsConstructor
 public class ChatService {
-    ChatRepository repository = new ChatRepositoryImpl();
+    private final ChatRepository repository;
 
     public Chat save(ChatSaveDto chatSaveDto) {
         Long saveId = repository.save(chatSaveDto);
