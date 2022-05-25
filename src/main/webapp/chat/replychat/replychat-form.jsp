@@ -55,12 +55,11 @@
             headers: {'Content-Type': 'application/json'},
             data: JSON.stringify(replyChat),
             success: function (result) {
-                const parsed = JSON.parse(result);
-                if (parsed.ok) {
-                    alert(parsed.message);
+                if (result.ok) {
+                    alert(result.message);
                     window.location.href = '/v/chat/myreply';
                 } else {
-                    alert(parsed.message);
+                    alert(result.message);
                 }
             }
         })

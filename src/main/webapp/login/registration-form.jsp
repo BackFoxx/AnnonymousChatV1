@@ -46,20 +46,22 @@
             'password': $('#password').val()
         }
 
-        console.log(JSON.stringify(registrationDto));
-
         $.ajax({
             type: 'post',
             url: '/v/login/registration',
             headers: {'Content-Type': 'application/json'},
             data: JSON.stringify(registrationDto),
             success: function (result) {
-                const parsed = JSON.parse(result);
-                if (parsed.ok) {
-                    alert(parsed.message);
+                console.log(result);
+                if (result.ok) {
+                    alert(result.message);
                     window.location.href = '/v/login/login-form';
-                } else {
-                    alert(parsed.message);
+                }
+            },
+            error: function(request, status, error) {
+                const errorMessage = JSON.parse(request.responseText);
+                if (!errorMessage.ok) {
+                    alert(errorMessage.message);
                 }
             }
         })

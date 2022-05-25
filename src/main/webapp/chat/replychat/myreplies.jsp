@@ -91,9 +91,8 @@
             headers: {'Content-Type': 'application/json'},
             data: JSON.stringify(deleteDto),
             success: function (result) {
-                const parsed = JSON.parse(result);
-                if (parsed.ok) {
-                    alert(parsed.message);
+                if (result.ok) {
+                    alert(result.message);
                     window.location.href = '/v/chat/myreply';
                 }
             }

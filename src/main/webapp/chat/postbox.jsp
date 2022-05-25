@@ -60,12 +60,11 @@
             type: 'get',
             url: '/v/chat/postbox/random',
             success: function (result) {
-                const parsed = JSON.parse(result);
-
-                if (parsed !== null) {
-                    document.getElementById('chat-title').innerText = parsed.createDate;
-                    document.getElementById('chat-content').innerText = parsed.content;
-                    chat.id = parsed.id;
+                console.log(result);
+                if (result) {
+                    document.getElementById('chat-title').innerText = result.createDate;
+                    document.getElementById('chat-content').innerText = result.content;
+                    chat.id = result.id;
                 } else {
                     document.getElementById('chat_card_body').className += 'visually-hidden';
                     document.getElementById('chat_card').innerHTML = '<p class="lead mt-3">게시글이 없습니다.</p>'

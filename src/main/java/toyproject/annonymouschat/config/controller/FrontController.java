@@ -18,7 +18,7 @@ import java.lang.reflect.Method;
 import java.util.*;
 
 @Slf4j
-@WebServlet(urlPatterns = {"/v/*"})
+//@WebServlet(urlPatterns = {"/v/*"})
 public class FrontController extends HttpServlet {
     Map<String, Object> controllerMap;
     List<ControllerAdaptor> controllerAdaptorList = new ArrayList<>();

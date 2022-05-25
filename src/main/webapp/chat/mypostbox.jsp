@@ -86,15 +86,13 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
 <script type="text/javascript">
     function placeReplies(result) {
-        const parsed = JSON.parse(result);
-
-        if (parsed.length === 0) {
+        if (result.length === 0) {
             //답변이 없을 경우
             document.getElementById('reply_table').innerHTML = '<p class="lead mt-3">답장이 없습니다!</p>';
         } else {
             //답변이 있을 경우
             let table = '';
-            parsed.forEach(function (reply) {
+            result.forEach(function (reply) {
                 table += ('<tr><th scope="row">' + reply.createDate + '</th><td>' + reply.content + '</td></tr>')
             })
             document.getElementById('reply_table').innerHTML = table;
@@ -124,12 +122,11 @@
             headers: {'Content-Type': 'application/json'},
             data: JSON.stringify(deleteDto),
             success: function (result) {
-                const parsed = JSON.parse(result);
-                if (parsed.ok) {
-                    alert(parsed.message);
+                if (result.ok) {
+                    alert(result.message);
                     window.location.href = '/v/chat/mypostbox';
                 } else {
-                    alert(parsed.message);
+                    alert(result.message);
                 }
             }
         })
