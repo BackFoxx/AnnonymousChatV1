@@ -23,7 +23,7 @@
         <div class="mb-3 row">
             <label for="userEmail" class="col-sm-2 col-form-label">Email</label>
             <div class="col-sm-10">
-                <input value="${cookie.registerEmail.value}" name="userEmail" type="email" class="form-control" id="userEmail">
+                <input value="${registerEmail}" name="userEmail" type="email" class="form-control" id="userEmail">
             </div>
         </div>
         <div class="mb-3 row">

@@ -5,6 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import toyproject.annonymouschat.User.model.User;
 import toyproject.annonymouschat.chat.dto.ChatDeleteDto;
@@ -12,7 +14,6 @@ import toyproject.annonymouschat.chat.dto.ChatPostSaveDeleteResponseDto;
 import toyproject.annonymouschat.chat.dto.ChatSaveDto;
 import toyproject.annonymouschat.chat.model.Chat;
 import toyproject.annonymouschat.chat.service.ChatService;
-import toyproject.annonymouschat.config.exception.WrongFormException;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -38,28 +39,19 @@ public class ChatController {
     }
 
     @PostMapping("chat/post/save")
-    public ResponseEntity save(@RequestBody ChatSaveDto dto, @RequestAttribute("user") User user) {
+    public ResponseEntity save(@Validated @RequestBody ChatSaveDto dto,
+                               BindingResult bindingResult,
+                               @RequestAttribute("user") User user) {
         dto.setUserId(user.getId());
 
-        try {
-            // 검증 로직
-            if (dto.getUserId() == null) {
-                throw new WrongFormException("로그인이 안 되어있는 듯 합니다");
-            }
-            if (dto.getContent().isEmpty()) {
-                throw new WrongFormException("내용을 입력해주세요");
-            }
-            if (dto.getContent().length() > 140) {
-                throw new WrongFormException("내용은 140자를 넘지 않게 해주세요");
-            }
-
-            chatService.save(dto);
-
-            ChatPostSaveDeleteResponseDto responseDto = new ChatPostSaveDeleteResponseDto(true, "저장 완료되었습니다.");
-            return new ResponseEntity(responseDto, HttpStatus.OK);
-        } catch (WrongFormException e) {
-            ChatPostSaveDeleteResponseDto responseDto = new ChatPostSaveDeleteResponseDto(false, e.getMessage());
-            return new ResponseEntity(responseDto, HttpStatus.BAD_REQUEST);
+        if (bindingResult.hasErrors()) {
+            log.info("error = {}", bindingResult);
+            ChatPostSaveDeleteResponseDto userResponseDto = new ChatPostSaveDeleteResponseDto(false, bindingResult.getAllErrors().get(0).getCode());
+            return new ResponseEntity<ChatPostSaveDeleteResponseDto>(userResponseDto, HttpStatus.BAD_REQUEST);
         }
+        chatService.save(dto);
+
+        ChatPostSaveDeleteResponseDto responseDto = new ChatPostSaveDeleteResponseDto(true, "저장 완료되었습니다.");
+        return new ResponseEntity(responseDto, HttpStatus.OK);
     }
 }

@@ -1,5 +1,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -23,8 +24,8 @@
         <c:if test='${empty user}'>
             <p class="lead">회원 기능</p>
             <p>
-                <a class="btn btn-lg btn-outline-primary" href="/v/login/registration-form">회원 가입</a>
-                <a class="btn btn-lg btn-primary" href="/v/login/login-form">로그인</a>
+                <a class="btn btn-lg btn-outline-primary" href="/v/login/registration-form"><spring:message code="registration" /></a>
+                <a class="btn btn-lg btn-primary" href="/v/login/login-form"><spring:message code="login" /></a>
             </p>
         </c:if>
         <c:if test='${not empty user}'>

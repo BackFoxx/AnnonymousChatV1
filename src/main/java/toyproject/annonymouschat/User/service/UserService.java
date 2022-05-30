@@ -5,13 +5,18 @@ import toyproject.annonymouschat.User.dto.UserRegistrationDto;
 import toyproject.annonymouschat.User.model.User;
 import toyproject.annonymouschat.User.repository.UserRepository;
 import toyproject.annonymouschat.User.repository.UserRepositoryImpl;
+import toyproject.annonymouschat.config.exception.DuplicateUserException;
 
 import java.util.NoSuchElementException;
 
 public class UserService {
     private UserRepository userRepository = new UserRepositoryImpl();
 
-    public String registration(UserRegistrationDto dto) {
+    public String registration(UserRegistrationDto dto) throws DuplicateUserException {
+        User userByEmail = userRepository.findByUserEmail(dto.getUserEmail());
+        if (userByEmail != null) {
+            throw new DuplicateUserException("이미 사용자가 존재하는 이메일입니다.");
+        }
         return userRepository.registration(dto);
     }
 
