@@ -4,10 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import toyproject.annonymouschat.User.model.User;
 import toyproject.annonymouschat.chat.dto.MyChatPostBoxResponseDto;
 import toyproject.annonymouschat.chat.model.Chat;
@@ -35,7 +32,8 @@ public class WebController {
 
     // User
     @RequestMapping("login/login-form")
-    public String loginForm() {
+    public String loginForm(@CookieValue("registerEmail") String registerEmail, Model model) {
+        model.addAttribute("registerEmail", registerEmail);
         log.info("jsp 호출");
         return "login/login-form";
     }

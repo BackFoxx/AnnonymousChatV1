@@ -1,8 +1,5 @@
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
     <title>Index</title>
@@ -20,22 +17,21 @@
     </div>
     <div class="jumbotron">
         <h1>RandomChat</h1>
-        <c:set var="user" value='<%=request.getAttribute("user")%>' />
-        <c:if test='${empty user}'>
+        <th:block th:unless="${user}">
             <p class="lead">회원 기능</p>
             <p>
-                <a class="btn btn-lg btn-outline-primary" href="/v/login/registration-form"><spring:message code="registration" /></a>
-                <a class="btn btn-lg btn-primary" href="/v/login/login-form"><spring:message code="login" /></a>
+                <a class="btn btn-lg btn-outline-primary" href="/v/login/registration-form">회원가입</a>
+                <a class="btn btn-lg btn-primary" href="/v/login/login-form">로그인</a>
             </p>
-        </c:if>
-        <c:if test='${not empty user}'>
+        </th:block>
+        <th:block th:if='${user}'>
             <p class="lead">${user.userEmail}님 반갑습니다!</p>
             <p>
                 <a class="btn btn-lg btn-outline-success" href="/v/chat/postbox">편지함 보기</a>
                 <a class="btn btn-lg btn-success" href="/v/chat/post">편지 보내기</a>
                 <a class="btn btn-lg btn-outline-dark" href="/v/logout">로그 아웃</a>
             </p>
-        </c:if>
+        </th:block>
     </div>
     <div class="footer">
         <p>&copy; Hello Shop V2</p>

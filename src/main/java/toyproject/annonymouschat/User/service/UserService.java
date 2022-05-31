@@ -22,6 +22,9 @@ public class UserService {
 
     public User login(UserLoginDto dto) {
         User findUser = userRepository.findByUserEmail(dto.getUserEmail());
+        if (findUser == null) {
+            throw new NoSuchElementException("존재하지 않는 사용자입니다.");
+        }
         if (findUser.getPassword().equals(dto.getPassword())) {
             return findUser;
         }

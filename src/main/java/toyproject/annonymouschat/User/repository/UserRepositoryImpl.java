@@ -1,6 +1,7 @@
 package toyproject.annonymouschat.User.repository;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import toyproject.annonymouschat.User.dto.UserRegistrationDto;
 import toyproject.annonymouschat.User.model.User;
@@ -28,9 +29,13 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public User findByUserEmail(String userEmail) {
         String sql = "select * from user where useremail=?";
-        return jdbcTemplate.queryForObject(sql, (rs, rowNum) -> new User(rs.getLong("id"),
-                rs.getString("userEmail"),
-                rs.getString("password")), userEmail);
+        try {
+            return jdbcTemplate.queryForObject(sql, (rs, rowNum) -> new User(rs.getLong("id"),
+                    rs.getString("userEmail"),
+                    rs.getString("password")), userEmail);
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
     }
 
 }
