@@ -32,7 +32,7 @@ public class WebController {
 
     // User
     @RequestMapping("login/login-form")
-    public String loginForm(@CookieValue("registerEmail") String registerEmail, Model model) {
+    public String loginForm(@CookieValue(value = "registerEmail", required = false) String registerEmail, Model model) {
         model.addAttribute("registerEmail", registerEmail);
         log.info("jsp 호출");
         return "login/login-form";

@@ -18,7 +18,7 @@ public class UserRepositoryImpl implements UserRepository {
     // 아이디를 이용한 삭제
     @Override
     public String registration(UserRegistrationDto dto) {
-        String sql = "insert into user (useremail, password) values (?, ?)";
+        String sql = "insert into user_table (useremail, password) values (?, ?)";
 
         jdbcTemplate.update(sql, dto.getUserEmail(), dto.getPassword());
         log.info("회원가입 완료되었습니다.");
@@ -28,7 +28,7 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public User findByUserEmail(String userEmail) {
-        String sql = "select * from user where useremail=?";
+        String sql = "select * from user_table where useremail=?";
         try {
             return jdbcTemplate.queryForObject(sql, (rs, rowNum) -> new User(rs.getLong("id"),
                     rs.getString("userEmail"),
