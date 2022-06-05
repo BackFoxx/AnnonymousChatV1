@@ -22,7 +22,6 @@ import javax.servlet.http.HttpServletResponse;
 
 @Slf4j
 @Controller
-@RequestMapping("/v")
 public class UserController {
 
     private UserService userService = new UserService();
@@ -38,26 +37,20 @@ public class UserController {
     @PostMapping(value = "/login/registration")
     public ResponseEntity registration(@Validated @RequestBody UserRegistrationDto registrationDto,
                                        BindingResult bindingResult,
-                                       HttpServletResponse response) {
+                                       HttpServletResponse response) throws BindException {
 
         if (bindingResult.hasErrors()) {
             log.info("error = {}", bindingResult);
-            UserResponseDto userResponseDto = new UserResponseDto(false, bindingResult.getAllErrors().get(0).getCode());
-            return new ResponseEntity<UserResponseDto>(userResponseDto, HttpStatus.BAD_REQUEST);
+            throw new BindException(bindingResult);
         }
 
         String savedEmail = userService.registration(registrationDto);
 
-        Cookie registerEmailCookie = new Cookie("registerEmail", savedEmail);
-        registerEmailCookie.setPath("/v/login/login-form");
-        registerEmailCookie.setMaxAge(5);
-        response.addCookie(registerEmailCookie);
-
         UserResponseDto userResponseDto = new UserResponseDto(true, "회원가입 완료되었습니다.");
         return new ResponseEntity(userResponseDto, HttpStatus.OK);
-
     }
 
+    @ResponseBody
     @PostMapping(value = "/login")
     public String login(@Validated @RequestBody UserLoginDto userLoginDto,
                         BindingResult bindingResult,
@@ -70,10 +63,10 @@ public class UserController {
         User loginUser = userService.login(userLoginDto);
         if (loginUser != null) {
             userSession.createSession(loginUser, response);
-            return "redirect:/";
+            return "성공";
         } else {
             log.info("로그인 실패");
-            return "redirect:/v/login/login-form";
+            return "실패";
         }
     }
 

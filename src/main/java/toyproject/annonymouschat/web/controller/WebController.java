@@ -17,31 +17,16 @@ import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
-@RequestMapping("/v/")
 @Controller
 public class WebController {
 
     private final ChatService chatService;
     private final ReplyChatService replyChatService;
 
-    @RequestMapping
-    public String index() {
-        log.info("jsp 호출");
-        return "index";
-    }
-
-    // User
-    @RequestMapping("login/login-form")
-    public String loginForm(@CookieValue(value = "registerEmail", required = false) String registerEmail, Model model) {
-        model.addAttribute("registerEmail", registerEmail);
-        log.info("jsp 호출");
-        return "login/login-form";
-    }
-
-    @RequestMapping("login/registration-form")
-    public String registrationForm() {
-        log.info("jsp 호출");
-        return "login/registration-form";
+    @ResponseBody
+    @GetMapping("/")
+    public User index(@RequestAttribute(required = false) User user) {
+        return user;
     }
 
     //Chat

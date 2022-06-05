@@ -12,7 +12,7 @@ import java.io.IOException;
 @Slf4j
 public class LoginFilter implements Filter {
     private UserSession userSession = new UserSession();
-    private final String[] whiteLists = {"/", "/api/*", "/v/login", "/v/login/*", "/v/logout", "/css/*", "/js/*", "/favicon.ico"};
+    private final String[] whiteLists = {"/", "/api/*", "/login", "/login/*", "/logout", "/css/*", "/js/*", "/favicon.ico"};
     // 필터를 거치지 않는 URI들
 
     @Override
@@ -28,8 +28,6 @@ public class LoginFilter implements Filter {
                 httpRequest.setAttribute("user", user);
             } else {
                 log.info("로그인 안되어있음");
-                HttpServletResponse httpResponse = (HttpServletResponse) response;
-                httpResponse.sendRedirect("/v/login/login-form?redirectURL=" + requestURI);
                 return;
             }
         }
