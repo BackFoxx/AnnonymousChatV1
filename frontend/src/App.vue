@@ -3,9 +3,9 @@
     <div class="container">
       <div class="header">
         <ul class="nav nav-pills pull-right">
-          <li><a @click="$router.push({name: 'IndexPage'})">ToyProject</a></li>
+          <li><a @click="toIndex">ToyProject</a></li>
         </ul>
-        <a @click="$router.push({name: 'IndexPage'})"><h3 class="text-muted">RandomChat</h3></a>
+        <a @click="toIndex"><h3 class="text-muted">RandomChat</h3></a>
       </div>
       <router-view/>
     <div class="footer">
@@ -14,6 +14,20 @@
   </div>
   </div>
 </template>
+
+<script>
+export default {
+  methods: {
+    toIndex() {
+        if (this.$route.path !== '/') {
+          this.$router.push({
+            name: 'IndexPage'
+          })
+        }
+    }
+  }
+}
+</script>
 
 <style>
 

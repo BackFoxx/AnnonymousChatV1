@@ -12,11 +12,12 @@ import store from './store'
 axios.defaults.baseURL = "http://localhost:8081";
 axios.defaults.withCredentials = true
 axios.defaults.headers.post['Content-Type'] = 'application/json;charset=utf-8';
-// axios.defaults.headers.post['Access-Control-Allow-Origin'] = '*';
+axios.defaults.headers.post['Access-Control-Allow-Origin'] = '*';
 
 Vue.config.productionTip = false
 Vue.use(BootstrapVue)
 Vue.use(VueCookies)
+Vue.use(axios)
 
 new Vue({
   router,

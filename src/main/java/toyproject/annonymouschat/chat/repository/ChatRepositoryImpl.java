@@ -37,9 +37,10 @@ public class ChatRepositoryImpl implements ChatRepository{
         return (Long) keyHolder.getKeys().get("ID");
     }
 
+    //User 아이디를 이용한 전체조회 -> 날짜 최신순
     @Override
     public List<MyChatPostBoxResponseDto> findAllByUserId(Long userId) {
-        String sql = "select * from chat where user_id=?";
+        String sql = "select * from chat where user_id=? order by createDate desc";
 
         List<MyChatPostBoxResponseDto> findChats = jdbcTemplate.query(sql, (rs, rowNum) -> {
             MyChatPostBoxResponseDto dto = new MyChatPostBoxResponseDto();

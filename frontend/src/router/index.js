@@ -4,6 +4,10 @@ import IndexPage from "@/components/IndexPage";
 import LoginPage from "@/components/LoginPage";
 import RegistrationPage from "@/components/RegistrationPage";
 
+import ChatPostBoxPage from "@/components/chat/PostBoxPage";
+import ChatFormPage from '@/components/chat/ChatFormPage'
+import MyChatPage from '@/components/chat/MyChatPage'
+
 Vue.use(VueRouter)
 
 const routes = [
@@ -12,6 +16,7 @@ const routes = [
     name: 'IndexPage',
     component: IndexPage
   },
+  // USER
   {
     path: '/loginPage',
     name: 'LoginPage',
@@ -22,6 +27,23 @@ const routes = [
     path: '/registrationPage',
     name: 'RegistrationPage',
     component: RegistrationPage
+  },
+  
+  // CHAT
+  {
+    path: '/chat',
+    name: 'ChatPostBoxPage',
+    component: ChatPostBoxPage
+  },
+  {
+    path: '/chat-form',
+    name: 'ChatFormPage',
+    component: ChatFormPage
+  },
+  {
+    path: '/my-chat',
+    name: 'MyChatPage',
+    component: MyChatPage
   }
 ]
 

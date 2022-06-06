@@ -1,6 +1,5 @@
 <template>
     <form class="jumbotron">
-      <h1>RandomChat</h1>
       <p class="lead">로그인</p>
       <div class="mb-3 row">
         <label for="userEmail" class="col-sm-2 col-form-label">Email</label>

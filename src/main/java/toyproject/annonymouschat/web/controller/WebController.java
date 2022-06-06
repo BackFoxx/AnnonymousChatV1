@@ -29,29 +29,6 @@ public class WebController {
         return user;
     }
 
-    //Chat
-    @GetMapping("chat/post")
-    public String ChatPostForm() {
-        log.info("jsp 호출");
-        return "chat/post";
-    }
-
-    @GetMapping("chat/postbox")
-    public String ChatPostBox() {
-        log.info("jsp 호출");
-        return "chat/postbox";
-    }
-
-    @GetMapping("chat/mypostbox")
-    public String myChat(@RequestAttribute("user") User user, Model model) {
-        log.info("jsp 호출");
-        Long userId = user.getId();
-        List<MyChatPostBoxResponseDto> findChats = chatService.findAllByUserId(userId);
-
-        model.addAttribute("findChats", findChats);
-        return "chat/mypostbox";
-    }
-
     //Reply
     @GetMapping("chat/myreply")
     public String myReply(@RequestAttribute("user") User user, Model model) {

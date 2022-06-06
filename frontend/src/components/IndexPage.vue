@@ -1,6 +1,5 @@
 <template>
     <div class="jumbotron">
-      <h1>RandomChat</h1>
       <template v-if="!isLogined">
         <p class="lead">회원 기능</p>
         <p>
@@ -11,8 +10,8 @@
       <template v-else>
         <p class="lead">{{user_email}}님 반갑습니다!</p>
         <p>
-          <a class="btn btn-lg btn-outline-success" href="">편지함 보기</a>
-          <a class="btn btn-lg btn-success" href="">편지 보내기</a>
+          <a class="btn btn-lg btn-outline-success" @click="$router.push({name: 'ChatPostBoxPage'})">편지함 보기</a>
+          <a class="btn btn-lg btn-success" @click="$router.push({name: 'ChatFormPage'})">편지 보내기</a>
           <button class="btn btn-lg btn-outline-dark" @click="logout">로그 아웃</button>
         </p>
       </template>
