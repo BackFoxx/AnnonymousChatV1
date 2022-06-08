@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import toyproject.annonymouschat.replychat.dto.*;
 import toyproject.annonymouschat.replychat.repository.ReplyChatRepository;
-import toyproject.annonymouschat.replychat.repository.ReplyChatRepositoryImpl;
 
 import java.util.List;
 
@@ -16,8 +15,8 @@ public class ReplyChatService {
     public void saveReply(ReplyChatSaveDto dto) {
         repository.saveReply(dto);
     }
-    public List<RepliesByChatIdResponseDto> findAllByChatId(RepliesByChatIdDto dto) {
-        return repository.findAllByChatIdDto(dto);
+    public List<RepliesByChatIdResponseDto> findAllByChatId(int chatId) {
+        return repository.findAllByChatIdDto(chatId);
     }
     public List<RepliesByUserIdResponseDto> findAllByUserId(RepliesByUserIdDto dto) {
         return repository.findAllByUserIdDto(dto);
@@ -25,5 +24,9 @@ public class ReplyChatService {
 
     public void deleteReply(ReplyDeleteDto dto) {
         repository.deleteReply(dto);
+    }
+
+    public ReplyInfo replyInfo(int replyId) {
+        return repository.replyInfo(replyId);
     }
 }

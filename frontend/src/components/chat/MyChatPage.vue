@@ -21,19 +21,20 @@
                         controls
                         indicators
                         background="#FFE9F5"
-                        img-width="1024"
-                        img-height="580"
+                        img-width="auto"
+                        img-height="auto"
                         @sliding-start="onSlideStart"
                         @sliding-end="onSlideEnd"
                         >
-
-                        <template v-for="(item, index) of myChats">
-                            <b-carousel-slide img-blank img-alt="Blank image" :key="index">
-                                <p style="background-color:#ffffff">{{item.content}}</p>
-                                <p>{{item.createDate}}</p>
-                            </b-carousel-slide>
-                        </template>
-
+                            <div v-for="(item, index) of myChats" :key="index">
+                                <b-carousel-slide img-blank img-alt="Blank image">
+                                    <p style="background-color:#ffffff">{{item.content}}</p>
+                                    <p>{{item.createDate}}</p>
+                                    <b-button @click="switchReplyChatToggle" size="sm">댓글 보기</b-button>
+                                    <b-button @click="deleteChat(item.id)" size="sm" variant="danger">삭제</b-button>
+                                    <reply-chat-info :chat_id="item.id" v-if="replyChatToggle" />
+                                </b-carousel-slide>
+                            </div>
                         </b-carousel>
 
                         <p class="mt-4">
@@ -54,18 +55,29 @@
 </style>
 <script>
 import axios from 'axios'
+import ReplyChatInfo from '../replyChat/ReplyChatInfo.vue';
+
 export default {
+  components: { ReplyChatInfo },
     name: 'MyChatPage',
     data() {
+
         return {
             myChats: [],
 
             slide: 0,
-            sliding: null
+            sliding: null,
+
+            replyChatToggle: false
         }
     },
     created() {
         this.getMyChats();
+    },
+    watch: {
+        slide: function() {
+            this.replyChatToggle = false;
+        }
     },
     methods: {
         getMyChats() {
@@ -79,6 +91,18 @@ export default {
         },
         onSlideEnd() {
             this.sliding = false
+        },
+        deleteChat(chat_id) {
+            axios.post('/chat/delete', {
+                id: chat_id
+            })
+            .then(() => {
+                alert('삭제 완료되었습니다!');
+                this.$router.go();
+            })
+        },
+        switchReplyChatToggle() {
+            this.replyChatToggle = !this.replyChatToggle;
         }
     }
 }

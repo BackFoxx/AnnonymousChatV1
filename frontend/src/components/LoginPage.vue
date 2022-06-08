@@ -14,8 +14,8 @@
         </div>
       </div>
       <div class="col mt-3 text-end">
-        <button @click="login" type="button" class="w-25 btn btn-primary btn-sm">로그인</button>
-        <a @click="$router.push('registrationPage')"><button type="button" class="w-auto btn btn-outline-success btn-sm">회원가입</button></a>
+        <button @click="login" type="button" class="w-25 btn btn-primary btn-lg">로그인</button>
+        <a @click="$router.push('registrationPage')"><button type="button" class="w-auto btn btn-outline-success btn-lg">회원가입</button></a>
       </div>
     </form>
 </template>

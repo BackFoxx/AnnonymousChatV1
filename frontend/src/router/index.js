@@ -8,6 +8,8 @@ import ChatPostBoxPage from "@/components/chat/PostBoxPage";
 import ChatFormPage from '@/components/chat/ChatFormPage'
 import MyChatPage from '@/components/chat/MyChatPage'
 
+import MyReplyChatPage from '@/components/replyChat/MyReplyChatPage'
+
 Vue.use(VueRouter)
 
 const routes = [
@@ -28,7 +30,7 @@ const routes = [
     name: 'RegistrationPage',
     component: RegistrationPage
   },
-  
+
   // CHAT
   {
     path: '/chat',
@@ -44,6 +46,13 @@ const routes = [
     path: '/my-chat',
     name: 'MyChatPage',
     component: MyChatPage
+  },
+
+  //REPLYCHAT
+  {
+    path: '/my-reply',
+    name: 'MyReplyChatPage',
+    component: MyReplyChatPage
   }
 ]
 
