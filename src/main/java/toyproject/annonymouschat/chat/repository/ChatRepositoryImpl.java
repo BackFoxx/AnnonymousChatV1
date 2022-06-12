@@ -2,23 +2,29 @@ package toyproject.annonymouschat.chat.repository;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.support.*;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import toyproject.annonymouschat.chat.dto.ChatSaveDto;
 import toyproject.annonymouschat.chat.dto.MyChatPostBoxResponseDto;
 import toyproject.annonymouschat.chat.model.Chat;
-import toyproject.annonymouschat.config.DBConnectionUtil;
 
 import javax.sql.DataSource;
-import java.sql.*;
+import java.sql.PreparedStatement;
+import java.sql.Statement;
 import java.util.List;
 
 @Slf4j
 @Repository
 public class ChatRepositoryImpl implements ChatRepository{
 
-    private DataSource dataSource = DBConnectionUtil.getDataSource();
-    private JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+    private final DataSource dataSource;
+    private final JdbcTemplate jdbcTemplate;
+
+    public ChatRepositoryImpl(DataSource dataSource) {
+        this.dataSource = dataSource;
+        this.jdbcTemplate = new JdbcTemplate(dataSource);
+    }
 
     // 게시글 저장
     @Override

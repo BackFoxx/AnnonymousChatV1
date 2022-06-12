@@ -2,23 +2,23 @@ package toyproject.annonymouschat.replychat.repository;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import toyproject.annonymouschat.replychat.dto.*;
-import toyproject.annonymouschat.config.DBConnectionUtil;
 
 import javax.sql.DataSource;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @Repository
 public class ReplyChatRepositoryImpl implements ReplyChatRepository {
 
-    private DataSource dataSource = DBConnectionUtil.getDataSource();
-    private JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+    private final DataSource dataSource;
+    private final JdbcTemplate jdbcTemplate;
+
+    public ReplyChatRepositoryImpl(DataSource dataSource) {
+        this.dataSource = dataSource;
+        this.jdbcTemplate = new JdbcTemplate(dataSource);
+    }
 
     @Override
     public void saveReply(ReplyChatSaveDto dto) {

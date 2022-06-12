@@ -1,5 +1,6 @@
 package toyproject.annonymouschat.User.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,16 +17,16 @@ import toyproject.annonymouschat.User.service.UserService;
 import toyproject.annonymouschat.User.session.UserSession;
 import toyproject.annonymouschat.config.exception.DuplicateUserException;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 @Slf4j
+@RequiredArgsConstructor
 @Controller
 public class UserController {
 
-    private UserService userService = new UserService();
-    private UserSession userSession = new UserSession();
+    private final UserService userService;
+    private final UserSession userSession;
 
     @ExceptionHandler(DuplicateUserException.class)
     public ResponseEntity duplicateUser(DuplicateUserException e) {

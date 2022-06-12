@@ -3,17 +3,24 @@ package toyproject.annonymouschat.User.repository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Repository;
 import toyproject.annonymouschat.User.dto.UserRegistrationDto;
 import toyproject.annonymouschat.User.model.User;
-import toyproject.annonymouschat.config.DBConnectionUtil;
 
 import javax.sql.DataSource;
 
 @Slf4j
+@Repository
 public class UserRepositoryImpl implements UserRepository {
 
-    private DataSource dataSource = DBConnectionUtil.getDataSource();
-    private JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+    private final DataSource dataSource;
+//    private DataSource dataSource = DBConnectionUtil.getDataSource();
+    private final JdbcTemplate jdbcTemplate;
+
+    public UserRepositoryImpl(DataSource dataSource) {
+        this.dataSource = dataSource;
+        this.jdbcTemplate = new JdbcTemplate(dataSource);
+    }
 
     // 아이디를 이용한 삭제
     @Override

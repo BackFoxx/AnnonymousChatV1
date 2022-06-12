@@ -1,16 +1,17 @@
 package toyproject.annonymouschat.User.session;
 
+import org.springframework.stereotype.Component;
 import toyproject.annonymouschat.User.model.User;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Component
 public class UserSession {
     public static final String SESSION_COOKIE_NAME = "SessionId";
     private static Map<String, Object> sessionStore = new ConcurrentHashMap<>();
