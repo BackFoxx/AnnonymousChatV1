@@ -37,15 +37,14 @@ public class UserController {
     @ResponseBody
     @PostMapping(value = "/login/registration")
     public ResponseEntity registration(@Validated @RequestBody UserRegistrationDto registrationDto,
-                                       BindingResult bindingResult,
-                                       HttpServletResponse response) throws BindException {
+                                       BindingResult bindingResult) throws BindException {
 
         if (bindingResult.hasErrors()) {
             log.info("error = {}", bindingResult);
             throw new BindException(bindingResult);
         }
 
-        String savedEmail = userService.registration(registrationDto);
+        userService.registration(registrationDto);
 
         UserResponseDto userResponseDto = new UserResponseDto(true, "회원가입 완료되었습니다.");
         return new ResponseEntity(userResponseDto, HttpStatus.OK);
@@ -62,18 +61,14 @@ public class UserController {
         }
 
         User loginUser = userService.login(userLoginDto);
-        if (loginUser != null) {
-            userSession.createSession(loginUser, response);
-            return "성공";
-        } else {
-            log.info("로그인 실패");
-            return "실패";
-        }
+        userSession.createSession(loginUser, response);
+        return "성공";
     }
 
+    @ResponseBody
     @GetMapping(value = "/logout")
     public String logout(HttpServletRequest request, HttpServletResponse response) {
         userSession.expire(request, response);
-        return "redirect:/";
+        return "삭제 완료";
     }
 }

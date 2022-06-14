@@ -16,13 +16,11 @@ import java.util.List;
 
 @Slf4j
 @Repository
-public class ChatRepositoryImpl implements ChatRepository{
+public class ChatRepositoryImpl implements ChatRepository {
 
-    private final DataSource dataSource;
     private final JdbcTemplate jdbcTemplate;
 
     public ChatRepositoryImpl(DataSource dataSource) {
-        this.dataSource = dataSource;
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
@@ -67,6 +65,7 @@ public class ChatRepositoryImpl implements ChatRepository{
         return jdbcTemplate.queryForObject(sql, (rs, rowNum) -> {
             Chat chat = new Chat();
             chat.setId(rs.getLong("id"));
+            chat.setUserId(rs.getLong("user_id"));
             chat.setContent(rs.getString("content"));
             chat.setCreateDate(rs.getTimestamp("createDate"));
             return chat;
@@ -83,6 +82,7 @@ public class ChatRepositoryImpl implements ChatRepository{
             chat.setId(rs.getLong("id"));
             chat.setContent(rs.getString("content"));
             chat.setCreateDate(rs.getTimestamp("createDate"));
+            // 글 쓴 사람을 추측할 수 없도록 user_id를 dto에 넘겨주지 않는다.
             return chat;
         }, userId);
     }

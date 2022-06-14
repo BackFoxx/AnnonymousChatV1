@@ -3,13 +3,11 @@ package toyproject.annonymouschat.config.exception;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
 import org.springframework.context.MessageSource;
 import org.springframework.validation.FieldError;
 
 import java.util.Locale;
 
-@Setter
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class ErrorResult {

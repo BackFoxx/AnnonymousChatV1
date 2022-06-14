@@ -7,11 +7,11 @@ import java.util.List;
 public interface ReplyChatRepository {
     public void saveReply(ReplyChatSaveDto dto);
 
-    public List<RepliesByChatIdResponseDto> findAllByChatIdDto(int chatId);
+    public List<RepliesByChatIdResponseDto> findAllByChatIdDto(Long chatId);
 
     public List<RepliesByUserIdResponseDto> findAllByUserIdDto(RepliesByUserIdDto dto);
 
     public void deleteReply(ReplyDeleteDto dto);
 
-    public ReplyInfo replyInfo(int replyId);
+    public ReplyInfo replyInfo(Long replyId);
 }

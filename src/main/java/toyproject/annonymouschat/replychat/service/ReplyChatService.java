@@ -15,7 +15,7 @@ public class ReplyChatService {
     public void saveReply(ReplyChatSaveDto dto) {
         repository.saveReply(dto);
     }
-    public List<RepliesByChatIdResponseDto> findAllByChatId(int chatId) {
+    public List<RepliesByChatIdResponseDto> findAllByChatId(Long chatId) {
         return repository.findAllByChatIdDto(chatId);
     }
     public List<RepliesByUserIdResponseDto> findAllByUserId(RepliesByUserIdDto dto) {
@@ -26,7 +26,7 @@ public class ReplyChatService {
         repository.deleteReply(dto);
     }
 
-    public ReplyInfo replyInfo(int replyId) {
+    public ReplyInfo replyInfo(Long replyId) {
         return repository.replyInfo(replyId);
     }
 }

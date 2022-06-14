@@ -24,13 +24,13 @@ public class ReplyController {
     private final ReplyChatService replyChatService;
 
     @GetMapping("/replies/{chatId}")
-    public ResponseEntity repliesByChatId(@PathVariable int chatId) {
+    public ResponseEntity repliesByChatId(@PathVariable Long chatId) {
         List<RepliesByChatIdResponseDto> findChats = replyChatService.findAllByChatId(chatId);
         return new ResponseEntity<>(findChats, HttpStatus.OK);
     }
 
     @GetMapping("/my-reply")
-    public List<RepliesByUserIdResponseDto> myReply(@RequestAttribute("user") User user, Model model) {
+    public List<RepliesByUserIdResponseDto> myReply(@RequestAttribute("user") User user) {
         RepliesByUserIdDto dto = new RepliesByUserIdDto();
         dto.setUserId(user.getId());
 
@@ -38,7 +38,7 @@ public class ReplyController {
     }
 
     @GetMapping("/my-reply/info/{reply_id}")
-    public ReplyInfo replyInfo(@PathVariable int reply_id) {
+    public ReplyInfo replyInfo(@PathVariable Long reply_id) {
         return replyChatService.replyInfo(reply_id);
     }
 

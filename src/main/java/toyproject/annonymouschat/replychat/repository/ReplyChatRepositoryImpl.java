@@ -27,7 +27,7 @@ public class ReplyChatRepositoryImpl implements ReplyChatRepository {
     }
 
     @Override
-    public List<RepliesByChatIdResponseDto> findAllByChatIdDto(int chatId) {
+    public List<RepliesByChatIdResponseDto> findAllByChatIdDto(Long chatId) {
         String sql = "select * from replychat where chatid = ?";
 
         return jdbcTemplate.query(sql, (rs, rowNum) -> {
@@ -60,7 +60,7 @@ public class ReplyChatRepositoryImpl implements ReplyChatRepository {
     }
 
     @Override
-    public ReplyInfo replyInfo(int replyId) {
+    public ReplyInfo replyInfo(Long replyId) {
         String sql = "select REPLYCHAT.CREATEDATE create_date, C.CONTENT chat_content, C.CREATEDATE chat_createdate from REPLYCHAT inner join CHAT C on C.ID = REPLYCHAT.CHATID where REPLYCHAT.ID = ?";
         List<ReplyInfo> result = jdbcTemplate.query(sql, (rs, rowNum) -> {
             ReplyInfo replyInfo = new ReplyInfo();

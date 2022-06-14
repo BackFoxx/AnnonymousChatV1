@@ -23,6 +23,7 @@ public class UserSession {
 
         //response에 쿠키를 담아 반환
         Cookie sessionCookie = new Cookie(SESSION_COOKIE_NAME, sessionId);
+        sessionCookie.setMaxAge(30);
         sessionCookie.setPath("/");
         response.addCookie(sessionCookie);
     }
