@@ -21,6 +21,7 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.filter.CharacterEncodingFilter;
 import toyproject.annonymouschat.User.dto.UserLoginDto;
 import toyproject.annonymouschat.User.dto.UserRegistrationDto;
+import toyproject.annonymouschat.User.model.User;
 import toyproject.annonymouschat.User.repository.UserRepository;
 
 import javax.servlet.http.Cookie;
@@ -80,10 +81,8 @@ class UserControllerTest {
     @Transactional
     void registration_fail_duplicatedEmail(@Autowired UserRepository userRepository) throws Exception {
         // given
-        UserRegistrationDto registrationDto = new UserRegistrationDto();
-        registrationDto.setUserEmail("test@gmail.com");
-        registrationDto.setPassword("password");
-        userRepository.registration(registrationDto);
+        User user = new User(null, "test@gmail.com", "password");
+        userRepository.registration(user);
 
         UserRegistrationDto duplicatedUserRegistrationDto = new UserRegistrationDto();
         duplicatedUserRegistrationDto.setUserEmail("test@gmail.com"); // 이미 가입된 이메일
@@ -140,11 +139,9 @@ class UserControllerTest {
         String userEmail = "test@gmail.com";
         String password = "test";
 
-        UserRegistrationDto registrationDto = new UserRegistrationDto();
-        registrationDto.setUserEmail(userEmail);
-        registrationDto.setPassword(password);
+        User user = new User(null, userEmail, password);
 
-        userRepository.registration(registrationDto);
+        userRepository.registration(user);
 
         UserLoginDto userLoginDto = new UserLoginDto();
         userLoginDto.setUserEmail(userEmail);

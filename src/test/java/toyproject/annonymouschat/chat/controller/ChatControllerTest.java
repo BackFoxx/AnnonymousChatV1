@@ -27,6 +27,7 @@ import toyproject.annonymouschat.User.repository.UserRepository;
 import toyproject.annonymouschat.chat.dto.ChatDeleteDto;
 import toyproject.annonymouschat.chat.dto.ChatSaveDto;
 import toyproject.annonymouschat.chat.dto.MyChatPostBoxResponseDto;
+import toyproject.annonymouschat.chat.model.Chat;
 import toyproject.annonymouschat.chat.repository.ChatRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -304,18 +305,18 @@ class ChatControllerTest {
     }
 
     private User getUser(String userEmail, UserRepository userRepository) {
-        UserRegistrationDto meDto = new UserRegistrationDto();
-        meDto.setUserEmail(userEmail);
-        meDto.setPassword("test");
+        User user = new User(null, userEmail, "test");
 
-        userRepository.registration(meDto);
+        userRepository.registration(user);
         return userRepository.findByUserEmail(userEmail);
     }
 
     private void saveChat(ChatRepository chatRepository, User anotherUser) {
-        ChatSaveDto chatSaveDto = new ChatSaveDto();
-        chatSaveDto.setUserId(anotherUser.getId());
-        chatSaveDto.setContent("I'm random one");
-        chatRepository.save(chatSaveDto);
+        Chat chat = Chat.builder()
+                .userId(anotherUser.getId())
+                .content("I'm random one")
+                .build();
+
+        chatRepository.save(chat);
     }
 }

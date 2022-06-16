@@ -7,13 +7,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.transaction.annotation.Transactional;
-import toyproject.annonymouschat.User.dto.UserRegistrationDto;
 import toyproject.annonymouschat.User.model.User;
 import toyproject.annonymouschat.User.repository.UserRepository;
-import toyproject.annonymouschat.chat.dto.ChatSaveDto;
 import toyproject.annonymouschat.chat.model.Chat;
 import toyproject.annonymouschat.chat.repository.ChatRepository;
 import toyproject.annonymouschat.replychat.dto.*;
+import toyproject.annonymouschat.replychat.model.ReplyChat;
 
 import java.util.List;
 
@@ -42,11 +41,8 @@ class ReplyChatRepositoryImplTest {
 
         this.saveReply(user, chatId);
 
-        RepliesByUserIdDto repliesByUserIdDto = new RepliesByUserIdDto();
-        repliesByUserIdDto.setUserId(user.getId());
-        RepliesByUserIdResponseDto savedReply = this.replyChatRepository.findAllByUserIdDto(repliesByUserIdDto).get(0);
-
-        assertThat(savedReply.getReplyContent()).isEqualTo("I'm Reply");
+        ReplyChat savedReply = this.replyChatRepository.findAllByUserIdDto(user.getId()).get(0);
+        assertThat(savedReply.getContent()).isEqualTo("I'm Reply");
     }
 
     @Test
@@ -61,7 +57,7 @@ class ReplyChatRepositoryImplTest {
         this.saveReply(user, BChatId);
         // A에 대한 reply 2개와 B에 대한 reply 1개
 
-        List<RepliesByChatIdResponseDto> findReplyList = this.replyChatRepository.findAllByChatIdDto(AChatId);
+        List<ReplyChat> findReplyList = this.replyChatRepository.findAllByChatIdDto(AChatId);
         assertThat(findReplyList).hasSize(2);
     }
 
@@ -73,7 +69,7 @@ class ReplyChatRepositoryImplTest {
         Long chatId = this.getChatId(user);
         // 0개 등록
 
-        List<RepliesByChatIdResponseDto> findReplyList = this.replyChatRepository.findAllByChatIdDto(chatId);
+        List<ReplyChat> findReplyList = this.replyChatRepository.findAllByChatIdDto(chatId);
         assertThat(findReplyList).isNotNull(); // 값이 없으면 null이 아닌 빈 배열이 나온다.
         assertThat(findReplyList).hasSize(0);
     }
@@ -91,9 +87,7 @@ class ReplyChatRepositoryImplTest {
         this.saveReply(user2, chatId);
         /* 내가 쓴 글 2개와 타인이 쓴 글 1개 */
 
-        RepliesByUserIdDto repliesByUserIdDto = new RepliesByUserIdDto();
-        repliesByUserIdDto.setUserId(user.getId());
-        List<RepliesByUserIdResponseDto> findReplyDto = this.replyChatRepository.findAllByUserIdDto(repliesByUserIdDto);
+        List<ReplyChat> findReplyDto = this.replyChatRepository.findAllByUserIdDto(user.getId());
 
         assertThat(findReplyDto).hasSize(2);
     }
@@ -103,20 +97,16 @@ class ReplyChatRepositoryImplTest {
     @Transactional
     void findAllByUserID_success_0() {
         // case 1. 존재하지 않는 유저 Id로 조회
-        RepliesByUserIdDto repliesByUserIdDto = new RepliesByUserIdDto();
-        repliesByUserIdDto.setUserId(-1L); //존재하지 않는 유저
-        List<RepliesByUserIdResponseDto> findReplyDto
-                = this.replyChatRepository.findAllByUserIdDto(repliesByUserIdDto);
+        List<ReplyChat> findReplyDto
+                = this.replyChatRepository.findAllByUserIdDto(-1L); // 존재하지 않는 유저
 
         assertThat(findReplyDto).hasSize(0);
 
         // case 2. 작성한 글이 없는 유저 Id로 조회
         User user = this.getUser("test@gmail.com");
 
-        RepliesByUserIdDto repliesByUserIdDto2 = new RepliesByUserIdDto();
-        repliesByUserIdDto2.setUserId(user.getId());
-        List<RepliesByUserIdResponseDto> findReplyDto2
-                = this.replyChatRepository.findAllByUserIdDto(repliesByUserIdDto2);
+        List<ReplyChat> findReplyDto2
+                = this.replyChatRepository.findAllByUserIdDto(user.getId());
 
         assertThat(findReplyDto2).hasSize(0);
     }
@@ -131,23 +121,19 @@ class ReplyChatRepositoryImplTest {
 
         this.saveReply(user, chatId);
 
-        RepliesByUserIdDto userIdDto = new RepliesByUserIdDto();
-        userIdDto.setUserId(user.getId());
-        List<RepliesByUserIdResponseDto> findReplyList
-                = this.replyChatRepository.findAllByUserIdDto(userIdDto);
+        List<ReplyChat> findReplyList
+                = this.replyChatRepository.findAllByUserIdDto(user.getId());
 
         assertThat(findReplyList).hasSize(1);
         /* reply가 잘 등록되었는지 확인 */
 
         // when
-        Long replyId = findReplyList.get(0).getReplyId();
+        Long replyId = findReplyList.get(0).getId();
 
-        ReplyDeleteDto deleteDto = new ReplyDeleteDto();
-        deleteDto.setReplyId(replyId);
-        this.replyChatRepository.deleteReply(deleteDto);
+        this.replyChatRepository.deleteReply(replyId);
 
         // then
-        findReplyList = this.replyChatRepository.findAllByUserIdDto(userIdDto);
+        findReplyList = this.replyChatRepository.findAllByUserIdDto(user.getId());
         assertThat(findReplyList).hasSize(0);
         /* reply가 잘 삭제되었는지 확인 */
     }
@@ -163,13 +149,11 @@ class ReplyChatRepositoryImplTest {
 
         this.saveReply(user, chatId);
 
-        RepliesByUserIdDto userIdDto = new RepliesByUserIdDto();
-        userIdDto.setUserId(user.getId());
-        List<RepliesByUserIdResponseDto> findReplyList
-                = this.replyChatRepository.findAllByUserIdDto(userIdDto);
+        List<ReplyChat> findReplyList
+                = this.replyChatRepository.findAllByUserIdDto(user.getId());
 
         // when
-        Long replyId = findReplyList.get(0).getReplyId();
+        Long replyId = findReplyList.get(0).getId();
         ReplyInfo replyInfo = this.replyChatRepository.replyInfo(replyId);
 
         // then
@@ -178,27 +162,28 @@ class ReplyChatRepositoryImplTest {
     }
 
     private void saveReply(User user, Long chatId) {
-        ReplyChatSaveDto saveDto = new ReplyChatSaveDto();
-        saveDto.setUserId(user.getId());
-        saveDto.setChatId(chatId);
-        saveDto.setContent("I'm Reply");
+        ReplyChat replyChat = ReplyChat.builder()
+                .userId(user.getId())
+                .chatId(chatId)
+                .content("I'm Reply")
+                .build();
 
-        this.replyChatRepository.saveReply(saveDto);
+        this.replyChatRepository.saveReply(replyChat);
     }
 
     private User getUser(String userEmail) {
-        UserRegistrationDto meDto = new UserRegistrationDto();
-        meDto.setUserEmail(userEmail);
-        meDto.setPassword("test");
+        User user = new User(null, userEmail, "test");
 
-        this.userRepository.registration(meDto);
+        this.userRepository.registration(user);
         return this.userRepository.findByUserEmail(userEmail);
     }
 
     private Long getChatId(User user) {
-        ChatSaveDto chatSaveDto = new ChatSaveDto();
-        chatSaveDto.setUserId(user.getId());
-        chatSaveDto.setContent("I'm random one");
-        return this.chatRepository.save(chatSaveDto);
+        Chat chat = Chat.builder()
+                .userId(user.getId())
+                .content("I'm random one")
+                .build();
+
+        return this.chatRepository.save(chat);
     }
 }

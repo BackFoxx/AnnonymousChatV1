@@ -32,18 +32,22 @@ class ChatServiceTest {
     @Test
     @DisplayName("Chat 저장_성공")
     void save_success() {
-        ChatSaveDto chatSaveDto = new ChatSaveDto();
-        chatSaveDto.setUserId(1L);
-        chatSaveDto.setContent("Hi service");
-
-        when(this.chatRepository.save(chatSaveDto)).thenReturn(110L);
-
         Chat chat = new Chat(110L,
                 "Hi service",
                 Timestamp.valueOf(LocalDateTime.now()),
                 1L);
 
+        Chat dtoToChat = new Chat(null,
+                "Hi service",
+                null,
+                1L);
+
+        when(this.chatRepository.save(dtoToChat)).thenReturn(110L);
         when(this.chatRepository.findByChatId(110L)).thenReturn(chat);
+
+        ChatSaveDto chatSaveDto = new ChatSaveDto();
+        chatSaveDto.setUserId(1L);
+        chatSaveDto.setContent("Hi service");
 
         Chat saveChat = this.chatService.save(chatSaveDto);
         assertThat(saveChat).isEqualTo(chat);

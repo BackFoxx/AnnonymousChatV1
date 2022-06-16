@@ -12,10 +12,11 @@ Chat 테이블과 동일한 구조
 @EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Chat {
     private Long id;
     private String content;
     @JsonFormat(pattern = "yyyy/MM/dd hh:mm")
     private Timestamp createDate;
-    private Long UserId;
+    private Long userId;
 }

@@ -20,7 +20,9 @@ public class UserService {
         if (userByEmail != null) {
             throw new DuplicateUserException("이미 사용자가 존재하는 이메일입니다.");
         }
-        return userRepository.registration(dto);
+
+        User user = new User(null, dto.getUserEmail(), dto.getPassword());
+        return userRepository.registration(user);
     }
 
     public User login(UserLoginDto dto) {

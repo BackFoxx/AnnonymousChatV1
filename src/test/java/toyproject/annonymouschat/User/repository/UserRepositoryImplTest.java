@@ -33,16 +33,18 @@ class UserRepositoryImplTest {
     @Transactional
     void registration_success() {
         // given
-        UserRegistrationDto dto = new UserRegistrationDto();
-        String userEmail = "test@nate.com";
-        dto.setUserEmail(userEmail);
-        dto.setPassword("testPassword");
+        User user = new User(null, "test@gmail.com", "test");
+
+//        UserRegistrationDto dto = new UserRegistrationDto();
+//        String userEmail = "test@nate.com";
+//        dto.setUserEmail(userEmail);
+//        dto.setPassword("testPassword");
 
         // when
-        String registratedEmail = this.userRepository.registration(dto);
+        String registratedEmail = this.userRepository.registration(user);
 
         // then
-        assertThat(registratedEmail).isEqualTo(userEmail);
+        assertThat(registratedEmail).isEqualTo(user.getUserEmail());
     }
 
     @Test
@@ -50,13 +52,12 @@ class UserRepositoryImplTest {
     @Transactional
     void findByUserEmail_success() {
         // given
-        UserRegistrationDto dto = new UserRegistrationDto();
         String userEmail = "test@nate.com";
-        dto.setUserEmail(userEmail);
         String password = "testPassword";
-        dto.setPassword(password);
 
-        this.userRepository.registration(dto);
+        User user = new User(null, userEmail, password);
+
+        this.userRepository.registration(user);
 
         // when
         User findUser = this.userRepository.findByUserEmail(userEmail);

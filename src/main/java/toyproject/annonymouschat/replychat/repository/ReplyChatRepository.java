@@ -1,17 +1,18 @@
 package toyproject.annonymouschat.replychat.repository;
 
 import toyproject.annonymouschat.replychat.dto.*;
+import toyproject.annonymouschat.replychat.model.ReplyChat;
 
 import java.util.List;
 
 public interface ReplyChatRepository {
-    public void saveReply(ReplyChatSaveDto dto);
+    void saveReply(ReplyChat replyChat);
 
-    public List<RepliesByChatIdResponseDto> findAllByChatIdDto(Long chatId);
+    List<ReplyChat> findAllByChatIdDto(Long chatId);
 
-    public List<RepliesByUserIdResponseDto> findAllByUserIdDto(RepliesByUserIdDto dto);
+    List<ReplyChat> findAllByUserIdDto(Long userId);
 
-    public void deleteReply(ReplyDeleteDto dto);
+    void deleteReply(Long replyId);
 
-    public ReplyInfo replyInfo(Long replyId);
+    ReplyInfo replyInfo(Long replyId);
 }

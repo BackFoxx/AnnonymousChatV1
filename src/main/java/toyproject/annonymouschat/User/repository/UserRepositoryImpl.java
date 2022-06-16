@@ -24,13 +24,13 @@ public class UserRepositoryImpl implements UserRepository {
 
     // 아이디를 이용한 삭제
     @Override
-    public String registration(UserRegistrationDto dto) {
+    public String registration(User user) {
         String sql = "insert into user_table (useremail, password) values (?, ?)";
 
-        jdbcTemplate.update(sql, dto.getUserEmail(), dto.getPassword());
+        jdbcTemplate.update(sql, user.getUserEmail(), user.getPassword());
         log.info("회원가입 완료되었습니다.");
 
-        return dto.getUserEmail();
+        return user.getUserEmail();
     }
 
     @Override

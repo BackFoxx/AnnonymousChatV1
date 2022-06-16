@@ -5,8 +5,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-import toyproject.annonymouschat.chat.dto.ChatSaveDto;
-import toyproject.annonymouschat.chat.dto.MyChatPostBoxResponseDto;
 import toyproject.annonymouschat.chat.model.Chat;
 
 import javax.sql.DataSource;
@@ -26,14 +24,14 @@ public class ChatRepositoryImpl implements ChatRepository {
 
     // 게시글 저장
     @Override
-    public Long save(ChatSaveDto chatSaveDto) {
+    public Long save(Chat chat) {
         String sql = "insert into chat(content, user_id) values(?, ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         jdbcTemplate.update(con -> {
             PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-            ps.setString(1, chatSaveDto.getContent());
-            ps.setLong(2, chatSaveDto.getUserId());
+            ps.setString(1, chat.getContent());
+            ps.setLong(2, chat.getUserId());
             return ps;
         }, keyHolder);
 
@@ -43,16 +41,15 @@ public class ChatRepositoryImpl implements ChatRepository {
 
     //User 아이디를 이용한 전체조회 -> 날짜 최신순
     @Override
-    public List<MyChatPostBoxResponseDto> findAllByUserId(Long userId) {
+    public List<Chat> findAllByUserId(Long userId) {
         String sql = "select * from chat where user_id=? order by createDate desc";
 
-        List<MyChatPostBoxResponseDto> findChats = jdbcTemplate.query(sql, (rs, rowNum) -> {
-            MyChatPostBoxResponseDto dto = new MyChatPostBoxResponseDto();
-            dto.setId(rs.getLong("id"));
-            dto.setContent(rs.getString("content"));
-            dto.setCreateDate(rs.getTimestamp("createDate"));
-            return dto;
-        }, userId);
+        List<Chat> findChats = jdbcTemplate.query(sql, (rs, rowNum) -> Chat.builder()
+                .id(rs.getLong("id"))
+                .content(rs.getString("content"))
+                .createDate(rs.getTimestamp("createDate"))
+                .userId(rs.getLong("user_id"))
+                .build(), userId);
 
         return findChats;
     }

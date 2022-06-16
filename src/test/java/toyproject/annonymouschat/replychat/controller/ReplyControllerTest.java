@@ -26,8 +26,10 @@ import toyproject.annonymouschat.User.dto.UserRegistrationDto;
 import toyproject.annonymouschat.User.model.User;
 import toyproject.annonymouschat.User.repository.UserRepository;
 import toyproject.annonymouschat.chat.dto.ChatSaveDto;
+import toyproject.annonymouschat.chat.model.Chat;
 import toyproject.annonymouschat.chat.repository.ChatRepository;
 import toyproject.annonymouschat.replychat.dto.*;
+import toyproject.annonymouschat.replychat.model.ReplyChat;
 import toyproject.annonymouschat.replychat.repository.ReplyChatRepository;
 
 import java.util.List;
@@ -170,10 +172,8 @@ class ReplyControllerTest {
         Long chatId = this.getChatId(user);
         this.saveReply(user, chatId);
 
-        RepliesByUserIdDto userIdDto = new RepliesByUserIdDto();
-        userIdDto.setUserId(user.getId());
-        RepliesByUserIdResponseDto findReply = this.replyChatRepository.findAllByUserIdDto(userIdDto).get(0);
-        Long replyId = findReply.getReplyId();
+        ReplyChat findReply = this.replyChatRepository.findAllByUserIdDto(user.getId()).get(0);
+        Long replyId = findReply.getId();
 
         // when
         mockMvc.perform(get("/reply/my-reply/info/{reply_id}", replyId)
@@ -211,15 +211,12 @@ class ReplyControllerTest {
         Long chatId = this.getChatId(user);
         this.saveReply(user, chatId);
 
-        RepliesByUserIdDto userIdDto = new RepliesByUserIdDto();
-        userIdDto.setUserId(user.getId());
-
-        List<RepliesByUserIdResponseDto> findReplyList = this.replyChatRepository.findAllByUserIdDto(userIdDto);
+        List<ReplyChat> findReplyList = this.replyChatRepository.findAllByUserIdDto(user.getId());
         assertThat(findReplyList).hasSize(1);
         /* reply가 정상적으로 저장되었는지 확인 */
 
-        RepliesByUserIdResponseDto findReply = findReplyList.get(0);
-        Long replyId = findReply.getReplyId();
+        ReplyChat findReply = findReplyList.get(0);
+        Long replyId = findReply.getId();
 
         // when
         ReplyDeleteDto replyDeleteDto = new ReplyDeleteDto();
@@ -236,7 +233,7 @@ class ReplyControllerTest {
                 .andExpect(jsonPath("ok").value(true))
                 .andExpect(jsonPath("message").value("삭제 완료되었습니다"));
 
-        List<RepliesByUserIdResponseDto> deletedReplyList = this.replyChatRepository.findAllByUserIdDto(userIdDto);
+        List<ReplyChat> deletedReplyList = this.replyChatRepository.findAllByUserIdDto(user.getId());
         assertThat(deletedReplyList).hasSize(0);
         /* reply가 정상적으로 삭제되었는지 확인 */
     }
@@ -267,7 +264,7 @@ class ReplyControllerTest {
                 .andExpect(jsonPath("ok").value(true))
                 .andExpect(jsonPath("message").value("저장 완료되었습니다"));
 
-        List<RepliesByChatIdResponseDto> replyChatList = this.replyChatRepository.findAllByChatIdDto(chatId);
+        List<ReplyChat> replyChatList = this.replyChatRepository.findAllByChatIdDto(chatId);
         assertThat(replyChatList).hasSize(1);
         /* 저장이 잘 되어있는지 확인 */
     }
@@ -330,27 +327,28 @@ class ReplyControllerTest {
     }
 
     private void saveReply(User user, Long chatId) {
-        ReplyChatSaveDto saveDto = new ReplyChatSaveDto();
-        saveDto.setUserId(user.getId());
-        saveDto.setChatId(chatId);
-        saveDto.setContent("I'm Reply");
+        ReplyChat replyChat = ReplyChat.builder()
+                .userId(user.getId())
+                .chatId(chatId)
+                .content("I'm Reply")
+                .build();
 
-        this.replyChatRepository.saveReply(saveDto);
+        this.replyChatRepository.saveReply(replyChat);
     }
 
     private User getUser(String userEmail) {
-        UserRegistrationDto meDto = new UserRegistrationDto();
-        meDto.setUserEmail(userEmail);
-        meDto.setPassword("test");
+        User user = new User(null, userEmail, "test");
 
-        this.userRepository.registration(meDto);
+        this.userRepository.registration(user);
         return this.userRepository.findByUserEmail(userEmail);
     }
 
     private Long getChatId(User user) {
-        ChatSaveDto chatSaveDto = new ChatSaveDto();
-        chatSaveDto.setUserId(user.getId());
-        chatSaveDto.setContent("I'm random one");
-        return this.chatRepository.save(chatSaveDto);
+        Chat chat = Chat.builder()
+                .userId(user.getId())
+                .content("I'm random one")
+                .build();
+
+        return this.chatRepository.save(chat);
     }
 }
