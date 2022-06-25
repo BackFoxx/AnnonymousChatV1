@@ -41,7 +41,7 @@ class ReplyChatRepositoryImplTest {
 
         this.saveReply(user, chatId);
 
-        ReplyChat savedReply = this.replyChatRepository.findAllByUserIdDto(user.getId()).get(0);
+        ReplyChat savedReply = this.replyChatRepository.findAllByUserId(user.getId()).get(0);
         assertThat(savedReply.getContent()).isEqualTo("I'm Reply");
     }
 
@@ -57,7 +57,7 @@ class ReplyChatRepositoryImplTest {
         this.saveReply(user, BChatId);
         // A에 대한 reply 2개와 B에 대한 reply 1개
 
-        List<ReplyChat> findReplyList = this.replyChatRepository.findAllByChatIdDto(AChatId);
+        List<ReplyChat> findReplyList = this.replyChatRepository.findAllByChatId(AChatId);
         assertThat(findReplyList).hasSize(2);
     }
 
@@ -69,7 +69,7 @@ class ReplyChatRepositoryImplTest {
         Long chatId = this.getChatId(user);
         // 0개 등록
 
-        List<ReplyChat> findReplyList = this.replyChatRepository.findAllByChatIdDto(chatId);
+        List<ReplyChat> findReplyList = this.replyChatRepository.findAllByChatId(chatId);
         assertThat(findReplyList).isNotNull(); // 값이 없으면 null이 아닌 빈 배열이 나온다.
         assertThat(findReplyList).hasSize(0);
     }
@@ -87,7 +87,7 @@ class ReplyChatRepositoryImplTest {
         this.saveReply(user2, chatId);
         /* 내가 쓴 글 2개와 타인이 쓴 글 1개 */
 
-        List<ReplyChat> findReplyDto = this.replyChatRepository.findAllByUserIdDto(user.getId());
+        List<ReplyChat> findReplyDto = this.replyChatRepository.findAllByUserId(user.getId());
 
         assertThat(findReplyDto).hasSize(2);
     }
@@ -98,7 +98,7 @@ class ReplyChatRepositoryImplTest {
     void findAllByUserID_success_0() {
         // case 1. 존재하지 않는 유저 Id로 조회
         List<ReplyChat> findReplyDto
-                = this.replyChatRepository.findAllByUserIdDto(-1L); // 존재하지 않는 유저
+                = this.replyChatRepository.findAllByUserId(-1L); // 존재하지 않는 유저
 
         assertThat(findReplyDto).hasSize(0);
 
@@ -106,7 +106,7 @@ class ReplyChatRepositoryImplTest {
         User user = this.getUser("test@gmail.com");
 
         List<ReplyChat> findReplyDto2
-                = this.replyChatRepository.findAllByUserIdDto(user.getId());
+                = this.replyChatRepository.findAllByUserId(user.getId());
 
         assertThat(findReplyDto2).hasSize(0);
     }
@@ -122,7 +122,7 @@ class ReplyChatRepositoryImplTest {
         this.saveReply(user, chatId);
 
         List<ReplyChat> findReplyList
-                = this.replyChatRepository.findAllByUserIdDto(user.getId());
+                = this.replyChatRepository.findAllByUserId(user.getId());
 
         assertThat(findReplyList).hasSize(1);
         /* reply가 잘 등록되었는지 확인 */
@@ -133,7 +133,7 @@ class ReplyChatRepositoryImplTest {
         this.replyChatRepository.deleteReply(replyId);
 
         // then
-        findReplyList = this.replyChatRepository.findAllByUserIdDto(user.getId());
+        findReplyList = this.replyChatRepository.findAllByUserId(user.getId());
         assertThat(findReplyList).hasSize(0);
         /* reply가 잘 삭제되었는지 확인 */
     }
@@ -150,7 +150,7 @@ class ReplyChatRepositoryImplTest {
         this.saveReply(user, chatId);
 
         List<ReplyChat> findReplyList
-                = this.replyChatRepository.findAllByUserIdDto(user.getId());
+                = this.replyChatRepository.findAllByUserId(user.getId());
 
         // when
         Long replyId = findReplyList.get(0).getId();

@@ -8,9 +8,9 @@ import java.util.List;
 public interface ReplyChatRepository {
     void saveReply(ReplyChat replyChat);
 
-    List<ReplyChat> findAllByChatIdDto(Long chatId);
+    List<ReplyChat> findAllByChatId(Long chatId);
 
-    List<ReplyChat> findAllByUserIdDto(Long userId);
+    List<ReplyChat> findAllByUserId(Long userId);
 
     void deleteReply(Long replyId);
 

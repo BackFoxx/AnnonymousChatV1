@@ -26,7 +26,10 @@ import toyproject.annonymouschat.User.repository.UserRepository;
 
 import javax.servlet.http.Cookie;
 
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
+import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -49,7 +52,10 @@ class UserControllerTest {
         this.objectMapper = this.applicationContext.getBean(ObjectMapper.class);
         this.userController = this.applicationContext.getBean(UserController.class);
         this.mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
-                .apply(documentationConfiguration(restDocumentation))
+                .apply(documentationConfiguration(restDocumentation)
+                        .operationPreprocessors()
+                        .withRequestDefaults(prettyPrint())
+                        .withResponseDefaults(prettyPrint()))
                 .addFilter(new CharacterEncodingFilter("UTF-8", true))
                 .build();
     }
@@ -73,7 +79,17 @@ class UserControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("ok").value(true))
-                .andExpect(jsonPath("message").value("회원가입 완료되었습니다."));
+                .andExpect(jsonPath("message").value("회원가입 완료되었습니다."))
+
+                .andDo(document("user-registration",
+                        requestFields(
+                                fieldWithPath("userEmail").description("회원가입할 이메일 주소입니다."),
+                                fieldWithPath("password").description("회원가입할 비밀번호입니다.")
+                        ),
+                        responseFields(
+                                fieldWithPath("ok").description("회원가입 정상 처리 여부를 boolean값으로 나타냅니다."),
+                                fieldWithPath("message").description("회원가입 완료 메시지 또는 에러 메시지입니다.")
+                        )));
     }
 
     @Test
@@ -157,7 +173,14 @@ class UserControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(cookie().exists("SessionId"))
-                .andExpect(content().string("성공"));
+                .andExpect(content().string("성공"))
+
+                .andDo(document("user-login",
+                        requestFields(
+                                fieldWithPath("userEmail").description("로그인할 이메일 주소입니다."),
+                                fieldWithPath("password").description("로그인할 비밀번호입니다.")
+                        )
+                        ));
     }
 
     private static Object[] paramsForLogin_fail_validation() {
@@ -199,6 +222,8 @@ class UserControllerTest {
 
                 // then
                 .andDo(print())
-                .andExpect(cookie().maxAge("SessionId", 0));
+                .andExpect(cookie().maxAge("SessionId", 0))
+
+                .andDo(document("user-logout"));
     }
 }

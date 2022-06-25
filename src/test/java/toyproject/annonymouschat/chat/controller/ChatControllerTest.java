@@ -21,7 +21,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.context.WebApplicationContext;
-import toyproject.annonymouschat.User.dto.UserRegistrationDto;
 import toyproject.annonymouschat.User.model.User;
 import toyproject.annonymouschat.User.repository.UserRepository;
 import toyproject.annonymouschat.chat.dto.ChatDeleteDto;
@@ -30,9 +29,15 @@ import toyproject.annonymouschat.chat.dto.MyChatPostBoxResponseDto;
 import toyproject.annonymouschat.chat.model.Chat;
 import toyproject.annonymouschat.chat.repository.ChatRepository;
 
+import javax.servlet.http.Cookie;
+import java.nio.charset.StandardCharsets;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
+import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -55,7 +60,11 @@ class ChatControllerTest {
         this.chatController = this.applicationContext.getBean(ChatController.class);
         this.objectMapper = this.applicationContext.getBean(ObjectMapper.class);
         this.mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
-                .apply(documentationConfiguration(restDocumentation)).build();
+                .apply(documentationConfiguration(restDocumentation)
+                        .operationPreprocessors()
+                        .withRequestDefaults(prettyPrint())
+                        .withResponseDefaults(prettyPrint())
+                ).build();
     }
 
     @Test
@@ -83,7 +92,16 @@ class ChatControllerTest {
                 .andExpect(jsonPath("id").exists())
                 .andExpect(jsonPath("content").exists())
                 .andExpect(jsonPath("createDate").exists())
-                .andExpect(jsonPath("userId").doesNotExist());
+                .andExpect(jsonPath("userId").doesNotExist())
+
+                .andDo(document("chat-getRandom",
+                        responseFields(
+                                fieldWithPath("id").description("가져온 Chat의 아이디입니다."),
+                                fieldWithPath("content").description("가져온 Chat의 내용입니다."),
+                                fieldWithPath("createDate").description("가져온 Chat의 작성일입니다."),
+                                fieldWithPath("userId").description("가져온 Chat을 작성한 사람의 Id입니다. 사용자가 알 수 없도록 null로 지정되어 있습니다.")
+                        )
+                ));
     }
 
     @Test
@@ -159,12 +177,23 @@ class ChatControllerTest {
         this.mockMvc.perform(post("/chat/delete")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
+                        .characterEncoding(StandardCharsets.UTF_8)
                         .content(this.objectMapper.writeValueAsString(deleteDto)))
 
                 // then
                 .andDo(print())
                 .andExpect(jsonPath("ok").value(true))
-                .andExpect(jsonPath("message").value("삭제 완료되었습니다"));
+                .andExpect(jsonPath("message").value("삭제 완료되었습니다"))
+
+                .andDo(document("chat-delete",
+                        requestFields(
+                                fieldWithPath("id").description("삭제할 Chat의 id입니다.")
+                        ),
+                        responseFields(
+                                fieldWithPath("ok").description("정상적으로 삭제되었는지 여부를 boolean으로 표시합니다."),
+                                fieldWithPath("message").description("삭제 완료 메시지 또는 에러 메시지입니다.")
+                        )
+                ));
 
         /* chat이 정상적으로 삭제되었음을 확인한다. */
         assertThatThrownBy(() -> chatRepository.findByChatId(chatId))
@@ -186,6 +215,7 @@ class ChatControllerTest {
         mockMvc.perform(post("/chat/save")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
+                        .characterEncoding(StandardCharsets.UTF_8)
                         .requestAttr("user", user)
                         .content(this.objectMapper.writeValueAsString(saveDto)))
 
@@ -193,7 +223,17 @@ class ChatControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("ok").value(true))
-                .andExpect(jsonPath("message").value("저장 완료되었습니다."));
+                .andExpect(jsonPath("message").value("저장 완료되었습니다."))
+
+                .andDo(document("chat-save",
+                        requestFields(
+                                fieldWithPath("content").description("저장할 chat의 내용입니다."),
+                                fieldWithPath("userId").description("chat을 저장할 user의 id입니다. 요청 바디에 직접 넣을 수는 없고, 필터에서 유저 정보를 찾아 주입해줍니다.")
+                        ),
+                        responseFields(
+                                fieldWithPath("ok").description("chat의 저장 여부를 boolean값으로 알려줍니다."),
+                                fieldWithPath("message").description("저장 완료 메시지 또는 에러 메시지입니다.")
+                        )));
     }
 
     private static Object[] paramsForSaveFailValidation() {
@@ -246,11 +286,24 @@ class ChatControllerTest {
 
         // when
         MvcResult result = mockMvc.perform(get("/chat/myChat")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .cookie(new Cookie("SessionId", "A000-0A00-00A0-000A"))
                         .requestAttr("user", user))
 
                 // then
                 .andDo(print())
                 .andExpect(status().isOk())
+
+                .andDo(document("chat-myChat",
+                        responseFields(
+                                fieldWithPath("[].id").description("찾아낸 chat의 id입니다."),
+                                fieldWithPath("[].content").description("찾아낸 chat의 내용입니다."),
+                                fieldWithPath("[].createDate").description("찾아낸 chat의 작성일입니다.")
+                        )
+                        ))
+
                 .andReturn();
 
         String contentAsString = result.getResponse().getContentAsString();

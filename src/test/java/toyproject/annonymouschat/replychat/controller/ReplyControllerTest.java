@@ -1,8 +1,6 @@
 package toyproject.annonymouschat.replychat.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,21 +20,25 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.util.NestedServletException;
-import toyproject.annonymouschat.User.dto.UserRegistrationDto;
 import toyproject.annonymouschat.User.model.User;
 import toyproject.annonymouschat.User.repository.UserRepository;
-import toyproject.annonymouschat.chat.dto.ChatSaveDto;
 import toyproject.annonymouschat.chat.model.Chat;
 import toyproject.annonymouschat.chat.repository.ChatRepository;
-import toyproject.annonymouschat.replychat.dto.*;
+import toyproject.annonymouschat.replychat.dto.ReplyChatSaveDto;
+import toyproject.annonymouschat.replychat.dto.ReplyDeleteDto;
 import toyproject.annonymouschat.replychat.model.ReplyChat;
 import toyproject.annonymouschat.replychat.repository.ReplyChatRepository;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.Matchers.hasSize;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
+import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -63,7 +65,11 @@ class ReplyControllerTest {
         this.replyController = this.applicationContext.getBean(ReplyController.class);
         this.objectMapper = this.applicationContext.getBean(ObjectMapper.class);
         this.mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
-                .apply(documentationConfiguration(restDocumentation)).build();
+                .apply(documentationConfiguration(restDocumentation)
+                        .operationPreprocessors()
+                        .withRequestDefaults(prettyPrint())
+                        .withResponseDefaults(prettyPrint())
+                ).build();
 
         this.userRepository = this.applicationContext.getBean(UserRepository.class);
         this.replyChatRepository = this.applicationContext.getBean(ReplyChatRepository.class);
@@ -73,7 +79,7 @@ class ReplyControllerTest {
     @Test
     @DisplayName("Chat Id로 reply 조회하기_성공")
     @Transactional
-    void repliesByChatId_success() throws Exception {
+    void getAllReplyByChatId_success() throws Exception {
         // given
         User user = this.getUser("test@gmail.com");
         Long chatId = this.getChatId(user);
@@ -86,16 +92,23 @@ class ReplyControllerTest {
         // when
         mockMvc.perform(get("/reply/replies/{chatId}", chatId)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
+                        .accept(MediaType.APPLICATION_JSON)
+                        .characterEncoding(StandardCharsets.UTF_8))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(3)));
+                .andExpect(jsonPath("$", hasSize(3)))
+
+                .andDo(document("reply-getAllReplyByChatId",
+                        responseFields(
+                                fieldWithPath("[].content").description("찾아낸 reply의 내용입니다."),
+                                fieldWithPath("[].createDate").description("찾아낸 reply의 작성일입니다.")
+                        )));
     }
 
     @Test
     @DisplayName("Chat Id로 reply 조회하기_성공 (0개)")
     @Transactional
-    void repliesByChatId_success_0() throws Exception {
+    void getAllReplyByChatId_success_0() throws Exception {
         // given
         User user = this.getUser("test@gmail.com");
         Long chatId = this.getChatId(user);
@@ -125,12 +138,20 @@ class ReplyControllerTest {
 
         // when
         mockMvc.perform(get("/reply/my-reply")
+                        .accept(MediaType.APPLICATION_JSON)
                         .requestAttr("user", user))
                 .andDo(print())
 
                 // then
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(1)));
+                .andExpect(jsonPath("$", hasSize(1)))
+
+                .andDo(document("reply-myReply",
+                        responseFields(
+                                fieldWithPath("[].replyId").description("내 reply의 id입니다."),
+                                fieldWithPath("[].replyContent").description("내 reply의 내용입니다."),
+                                fieldWithPath("[].replyCreateDate").description("내 reply의 작성일입니다.")
+                        )));
     }
 
     @Test
@@ -172,7 +193,7 @@ class ReplyControllerTest {
         Long chatId = this.getChatId(user);
         this.saveReply(user, chatId);
 
-        ReplyChat findReply = this.replyChatRepository.findAllByUserIdDto(user.getId()).get(0);
+        ReplyChat findReply = this.replyChatRepository.findAllByUserId(user.getId()).get(0);
         Long replyId = findReply.getId();
 
         // when
@@ -184,7 +205,14 @@ class ReplyControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("createDate").exists())
                 .andExpect(jsonPath("chatContent").exists())
-                .andExpect(jsonPath("chatCreateDate").exists());
+                .andExpect(jsonPath("chatCreateDate").exists())
+
+                .andDo(document("reply-replyInfo",
+                        responseFields(
+                                fieldWithPath("createDate").description("내 reply의 작성일입니다."),
+                                fieldWithPath("chatContent").description("내가 답을 단 Chat의 내용입니다."),
+                                fieldWithPath("chatCreateDate").description("내가 답을 단 Chat의 작성일입니다.")
+                        )));
     }
 
     @Test
@@ -211,7 +239,7 @@ class ReplyControllerTest {
         Long chatId = this.getChatId(user);
         this.saveReply(user, chatId);
 
-        List<ReplyChat> findReplyList = this.replyChatRepository.findAllByUserIdDto(user.getId());
+        List<ReplyChat> findReplyList = this.replyChatRepository.findAllByUserId(user.getId());
         assertThat(findReplyList).hasSize(1);
         /* reply가 정상적으로 저장되었는지 확인 */
 
@@ -225,15 +253,25 @@ class ReplyControllerTest {
         mockMvc.perform(post("/reply/delete")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
+                        .characterEncoding(StandardCharsets.UTF_8)
                         .content(this.objectMapper.writeValueAsString(replyDeleteDto)))
 
                 // then
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("ok").value(true))
-                .andExpect(jsonPath("message").value("삭제 완료되었습니다"));
+                .andExpect(jsonPath("message").value("삭제 완료되었습니다"))
 
-        List<ReplyChat> deletedReplyList = this.replyChatRepository.findAllByUserIdDto(user.getId());
+                .andDo(document("reply-deleteReply",
+                        requestFields(
+                                fieldWithPath("replyId").description("삭제할 reply의 id입니다.")
+                        ),
+                        responseFields(
+                                fieldWithPath("ok").description("삭제가 정상적으로 수행되었는지 여부를 boolean 값으로 나타냅니다."),
+                                fieldWithPath("message").description("삭제 성공 메시지 또는 에러 메시지입니다.")
+                        )));
+
+        List<ReplyChat> deletedReplyList = this.replyChatRepository.findAllByUserId(user.getId());
         assertThat(deletedReplyList).hasSize(0);
         /* reply가 정상적으로 삭제되었는지 확인 */
     }
@@ -247,7 +285,7 @@ class ReplyControllerTest {
         Long chatId = this.getChatId(user);
 
         ReplyChatSaveDto chatSaveDto = new ReplyChatSaveDto();
-        chatSaveDto.setUserId(user.getId());
+//        chatSaveDto.setUserId(user.getId());
         chatSaveDto.setChatId(chatId);
         chatSaveDto.setContent("I'm here");
 
@@ -255,6 +293,7 @@ class ReplyControllerTest {
         mockMvc.perform(post("/reply/save")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
+                        .characterEncoding(StandardCharsets.UTF_8)
                         .requestAttr("user", user)
                         .content(this.objectMapper.writeValueAsString(chatSaveDto)))
 
@@ -262,9 +301,20 @@ class ReplyControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("ok").value(true))
-                .andExpect(jsonPath("message").value("저장 완료되었습니다"));
+                .andExpect(jsonPath("message").value("저장 완료되었습니다"))
 
-        List<ReplyChat> replyChatList = this.replyChatRepository.findAllByChatIdDto(chatId);
+                .andDo(document("reply-saveReply",
+                        requestFields(
+                                fieldWithPath("content").description("저장할 reply의 내용입니다."),
+                                fieldWithPath("chatId").description("어떤 chat에 대한 reply인지 id를 나타냅니다."),
+                                fieldWithPath("userId").description("reply를 저장하는 유저의 id입니다. 전송되는 쿠키 값을 분석하여 서버 내에서 유저 id를 찾습니다.")
+                        ),
+                        responseFields(
+                                fieldWithPath("ok").description("저장이 정상적으로 수행되었는지 여부를 boolean 값으로 나타냅니다."),
+                                fieldWithPath("message").description("저장 성공 메시지 또는 에러 메시지입니다.")
+                        )));
+
+        List<ReplyChat> replyChatList = this.replyChatRepository.findAllByChatId(chatId);
         assertThat(replyChatList).hasSize(1);
         /* 저장이 잘 되어있는지 확인 */
     }

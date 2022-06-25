@@ -1,0 +1,162 @@
+= AnnonymousChat API
+:toc: left
+:toclevels: 3
+:hardbreaks:
+
+== 1. User API
+
+=== 1.1 회원가입
+
+operation::user-registration[snippets = request-fields]
+
+operation::user-registration[snippets = response-fields]
+
+==== 예시 - 회원가입 성공)
+
+operation::user-registration[snippets = http-request]
+
+->
+
+operation::user-registration[snippets = http-response]
+
+
+=== 1.2 로그인
+
+operation::user-login[snippets = request-fields]
+
+로그인에 성공하면 해당 유저 정보에 해당하는 세션 키를 쿠키에 담아 응답합니다.
+
+==== 예시 - 로그인 성공)
+
+operation::user-login[snippets = http-request]
+
+->
+
+operation::user-login[snippets = http-response]
+
+=== 1.3 로그아웃
+
+요청을 보낸 클라이언트의 SessionId 쿠키를 파기합니다.
+
+==== 예시 - 로그아웃 성공)
+
+operation::user-logout[snippets = http-request]
+
+->
+
+operation::user-logout[snippets = http-response]
+
+== 2. Chat API
+
+=== 2.1 Chat 저장
+
+operation::chat-save[snippets = request-fields]
+
+operation::chat-save[snippets = response-fields]
+
+==== 예시 - 저장 성공)
+
+operation::chat-save[snippets = http-request]
+
+->
+
+operation::chat-save[snippets = http-response]
+
+=== 2.2 Chat 삭제
+
+operation::chat-delete[snippets = request-fields]
+
+operation::chat-delete[snippets = response-fields]
+
+==== 예시 - 삭제 성공)
+
+operation::chat-delete[snippets = http-request]
+
+->
+
+operation::chat-delete[snippets = http-response]
+
+=== 2.3 랜덤 Chat 가져오기
+
+operation::chat-getRandom[snippets = response-fields]
+
+==== 예시 - 랜덤 Chat 가져오기 성공)
+
+operation::chat-getRandom[snippets = http-request]
+
+->
+
+operation::chat-getRandom[snippets = http-response]
+
+=== 2.4 나의 Chat 가져오기
+
+operation::chat-myChat[snippets = response-fields]
+
+==== 예시 - 랜덤 Chat 가져오기 성공)
+
+operation::chat-myChat[snippets = http-request]
+
+->
+
+쿠키로 넘어온 SessionId값을 분석하여
+해당하는 유저의 Chat 목록을 응답합니다.
+
+operation::chat-myChat[snippets = http-response]
+
+== 4. Reply API
+
+=== 4.1 Reply 저장
+
+operation::reply-saveReply[snippets = request-fields]
+
+operation::reply-saveReply[snippets = response-fields]
+
+==== 예시 - Reply 저장 성공)
+
+operation::reply-saveReply[snippets = http-request]
+
+->
+
+operation::reply-saveReply[snippets = http-response]
+
+=== 4.2 Reply 삭제
+
+operation::reply-deleteReply[snippets = request-fields]
+
+operation::reply-deleteReply[snippets = response-fields]
+
+==== 예시 - Reply 저장 성공)
+
+operation::reply-deleteReply[snippets = http-request]
+
+->
+
+operation::reply-deleteReply[snippets = http-response]
+
+=== 4.3 Chat id로 Reply 조회하기
+
+operation::reply-getAllReplyByChatId[snippets = response-fields]
+
+==== 예시 - Reply 조회하기 성공)
+
+operation::reply-getAllReplyByChatId[snippets = http-request]
+
+->
+
+파라미터로 넘긴 chatId로 reply 리스트를 조회합니다.
+
+operation::reply-getAllReplyByChatId[snippets = http-response]
+
+=== 4.4 Reply 상세정보 조회하기
+
+operation::reply-replyInfo[snippets = response-body]
+
+==== 예시 - Reply 상세정보 조회하기 성공)
+
+operation::reply-replyInfo[snippets = http-request]
+
+->
+
+파라미터로 넘긴 chatId로 reply 리스트를 조회합니다.
+
+operation::reply-replyInfo[snippets = http-response]

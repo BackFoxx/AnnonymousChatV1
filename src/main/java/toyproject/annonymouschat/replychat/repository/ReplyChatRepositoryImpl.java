@@ -28,7 +28,7 @@ public class ReplyChatRepositoryImpl implements ReplyChatRepository {
     }
 
     @Override
-    public List<ReplyChat> findAllByChatIdDto(Long chatId) {
+    public List<ReplyChat> findAllByChatId(Long chatId) {
         String sql = "select * from replychat where chat_id = ?";
 
         return jdbcTemplate.query(sql, (rs, rowNum) -> ReplyChat.builder()
@@ -41,7 +41,7 @@ public class ReplyChatRepositoryImpl implements ReplyChatRepository {
     }
 
     @Override
-    public List<ReplyChat> findAllByUserIdDto(Long userId) {
+    public List<ReplyChat> findAllByUserId(Long userId) {
         String sql = "select * from REPLYCHAT where USER_ID = ?";
 
         return jdbcTemplate.query(sql, (rs, rowNum) -> ReplyChat.builder()

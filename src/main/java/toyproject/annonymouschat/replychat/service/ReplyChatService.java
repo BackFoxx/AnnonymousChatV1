@@ -25,20 +25,20 @@ public class ReplyChatService {
         repository.saveReply(replyChat);
     }
     public List<RepliesByChatIdResponseDto> findAllByChatId(Long chatId) {
-        List<ReplyChat> replyList = repository.findAllByChatIdDto(chatId);
+        List<ReplyChat> replyList = repository.findAllByChatId(chatId);
 
         List<RepliesByChatIdResponseDto> responseList = new ArrayList<>();
         replyList.forEach(reply -> {
             RepliesByChatIdResponseDto dto = new RepliesByChatIdResponseDto();
-            dto.setCreateDate(dto.getCreateDate());
-            dto.setContent(dto.getContent());
+            dto.setCreateDate(reply.getCreateDate());
+            dto.setContent(reply.getContent());
             responseList.add(dto);
         });
 
         return responseList;
     }
     public List<RepliesByUserIdResponseDto> findAllByUserId(RepliesByUserIdDto userIdDto) {
-        List<ReplyChat> findList = repository.findAllByUserIdDto(userIdDto.getUserId());
+        List<ReplyChat> findList = repository.findAllByUserId(userIdDto.getUserId());
 
         List<RepliesByUserIdResponseDto> responseList = new ArrayList<>();
         findList.forEach(reply -> {

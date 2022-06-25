@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.ui.Model;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
@@ -24,7 +23,7 @@ public class ReplyController {
     private final ReplyChatService replyChatService;
 
     @GetMapping("/replies/{chatId}")
-    public ResponseEntity repliesByChatId(@PathVariable Long chatId) {
+    public ResponseEntity getAllReplyByChatId(@PathVariable Long chatId) {
         List<RepliesByChatIdResponseDto> findChats = replyChatService.findAllByChatId(chatId);
         return new ResponseEntity<>(findChats, HttpStatus.OK);
     }
