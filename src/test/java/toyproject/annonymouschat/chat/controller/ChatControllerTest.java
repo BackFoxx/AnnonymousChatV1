@@ -1,6 +1,7 @@
 package toyproject.annonymouschat.chat.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,7 +22,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.context.WebApplicationContext;
-import toyproject.annonymouschat.User.model.User;
+import toyproject.annonymouschat.User.entity.User;
 import toyproject.annonymouschat.User.repository.UserRepository;
 import toyproject.annonymouschat.chat.dto.ChatDeleteDto;
 import toyproject.annonymouschat.chat.dto.ChatSaveDto;
@@ -31,6 +32,8 @@ import toyproject.annonymouschat.chat.repository.ChatRepository;
 
 import javax.servlet.http.Cookie;
 import java.nio.charset.StandardCharsets;
+import java.sql.Timestamp;
+import java.time.Instant;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -92,14 +95,12 @@ class ChatControllerTest {
                 .andExpect(jsonPath("id").exists())
                 .andExpect(jsonPath("content").exists())
                 .andExpect(jsonPath("createDate").exists())
-                .andExpect(jsonPath("userId").doesNotExist())
 
                 .andDo(document("chat-getRandom",
                         responseFields(
                                 fieldWithPath("id").description("가져온 Chat의 아이디입니다."),
                                 fieldWithPath("content").description("가져온 Chat의 내용입니다."),
-                                fieldWithPath("createDate").description("가져온 Chat의 작성일입니다."),
-                                fieldWithPath("userId").description("가져온 Chat을 작성한 사람의 Id입니다. 사용자가 알 수 없도록 null로 지정되어 있습니다.")
+                                fieldWithPath("createDate").description("가져온 Chat의 작성일입니다.")
                         )
                 ));
     }
@@ -167,7 +168,7 @@ class ChatControllerTest {
                 .getId();
 
         /* chat이 정상적으로 저장되었음을 확인한다. */
-        assertThat(chatRepository.findByChatId(chatId)).isNotNull();
+        assertThat(chatRepository.findById(chatId).get()).isNotNull();
 
         ChatDeleteDto deleteDto = new ChatDeleteDto();
         deleteDto.setId(chatId);
@@ -196,8 +197,7 @@ class ChatControllerTest {
                 ));
 
         /* chat이 정상적으로 삭제되었음을 확인한다. */
-        assertThatThrownBy(() -> chatRepository.findByChatId(chatId))
-                .isInstanceOf(EmptyResultDataAccessException.class);
+        Assertions.assertFalse(chatRepository.findById(chatId).isPresent());
     }
 
     @Test
@@ -366,7 +366,8 @@ class ChatControllerTest {
 
     private void saveChat(ChatRepository chatRepository, User anotherUser) {
         Chat chat = Chat.builder()
-                .userId(anotherUser.getId())
+                .user(anotherUser)
+                .createDate(Timestamp.from(Instant.now()))
                 .content("I'm random one")
                 .build();
 

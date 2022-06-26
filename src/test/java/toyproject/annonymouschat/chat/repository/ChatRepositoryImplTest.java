@@ -1,18 +1,22 @@
 package toyproject.annonymouschat.chat.repository;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
-import toyproject.annonymouschat.User.model.User;
+import toyproject.annonymouschat.User.entity.User;
 import toyproject.annonymouschat.User.repository.UserRepository;
 import toyproject.annonymouschat.chat.dto.ChatSaveDto;
-import toyproject.annonymouschat.chat.dto.MyChatPostBoxResponseDto;
 import toyproject.annonymouschat.chat.model.Chat;
 
+import javax.persistence.EntityManager;
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -23,22 +27,27 @@ class ChatRepositoryImplTest {
 
     ChatRepository chatRepository;
     UserRepository userRepository;
+    EntityManager em;
 
     @BeforeEach
     void setup(ApplicationContext applicationContext) {
         chatRepository = applicationContext.getBean(ChatRepository.class);
         userRepository = applicationContext.getBean(UserRepository.class);
+        em = applicationContext.getBean(EntityManager.class);
     }
 
     @Test
     @DisplayName("게시글 저장_성공")
     @Transactional
     void save_success() {
-        Long userId = this.getUserId("test@gmail.com");
+        User user = this.getUser("test@gmail.com");
 
-        Chat chat = new Chat(null, "What's happening on here!", null, userId);
+        Chat chat = new Chat(null, "What's happening on here!", Timestamp.from(Instant.now()), user);
 
-        Long saveId = this.chatRepository.save(chat);
+        Chat saveChat = this.chatRepository.save(chat);
+        System.out.println("saveChat = " + saveChat);
+
+        Long saveId = saveChat.getId();
         assertThat(saveId).isNotNull();
     }
 
@@ -47,22 +56,29 @@ class ChatRepositoryImplTest {
     @Transactional
     void findAllByUserId_success() {
         // given
-        Long userId = this.getUserId("test@gmail.com");
-        Long userId2 = this.getUserId("test2@gmail.com");
+
+        /* 내가 쓴 Chat과 */
+        User user = this.getUser("test@gmail.com");
 
         Chat chat = Chat.builder()
-                .userId(userId)
+                .user(user)
                 .content("written by test@gmail.com")
                 .build();
 
-        Long saveChatId = this.chatRepository.save(chat);
+        Long saveChatId = this.chatRepository.save(chat).getId();
 
-        ChatSaveDto dtoBy2 = new ChatSaveDto();
-        dtoBy2.setUserId(userId2);
-        dtoBy2.setContent("written by test2@gmail.com");
+        /* 남이 쓴 Chat */
+        User user2 = this.getUser("test2@gmail.com");
+
+        Chat chat2 = Chat.builder()
+                .user(user2)
+                .content("written by test2@gmail.com")
+                .build();
+
+        this.chatRepository.save(chat2);
 
         // when
-        List<Chat> findList = this.chatRepository.findAllByUserId(userId);
+        List<Chat> findList = this.chatRepository.findAllByUserId(user.getId());
 
         // then
         findList.forEach(findChat -> {
@@ -75,25 +91,21 @@ class ChatRepositoryImplTest {
     @Transactional
     void findByChatId_success() {
         // given
-        Long userId = this.getUserId("test@gmail.com");
-
-        ChatSaveDto saveDto = new ChatSaveDto();
-        saveDto.setUserId(userId);
-        saveDto.setContent("What's happening on here!");
+        User user = this.getUser("test@gmail.com");
 
         Chat chat = Chat.builder()
-                .userId(userId)
+                .user(user)
                 .content("What's happening on here!")
                 .build();
 
-        Long saveChatId = this.chatRepository.save(chat);
+        Long saveChatId = this.chatRepository.save(chat).getId();
 
         // when
-        Chat findChat = this.chatRepository.findByChatId(saveChatId);
+        Chat findChat = this.chatRepository.findById(saveChatId).get();
 
         // then
         assertThat(findChat.getId()).isEqualTo(saveChatId);
-        assertThat(findChat.getUserId()).isEqualTo(userId);
+        assertThat(findChat.getUser().getId()).isEqualTo(user.getId());
         assertThat(findChat.getContent()).isEqualTo("What's happening on here!");
     }
 
@@ -101,8 +113,7 @@ class ChatRepositoryImplTest {
     @DisplayName("Chat 아이디를 이용한 단건조회_실패 (없음)")
     @Transactional
     void findByChatId_fail() {
-        assertThatThrownBy(() -> this.chatRepository.findByChatId(-1L))
-                .isInstanceOf(EmptyResultDataAccessException.class);
+        Assertions.assertFalse(this.chatRepository.findById(-1L).isPresent());
     }
 
     @Test
@@ -110,20 +121,21 @@ class ChatRepositoryImplTest {
     @Transactional
     void getRandom_success() {
         // given
-        Long userId = getUserId("test@gmail.com");
+        User user = this.getUser("test@gmail.com");
+
         IntStream.range(0, 15).forEach(i -> {
             Chat chat = Chat.builder()
-                    .userId(userId)
+                    .user(user)
                     .content("What's happening on here!")
                     .build();
 
             this.chatRepository.save(chat);
         });
 
-        Long userId2 = getUserId("test2@gmail.com");
+        User user2 = this.getUser("test2@gmail.com");
         IntStream.range(0, 15).forEach(i -> {
             Chat chat = Chat.builder()
-                    .userId(userId2)
+                    .user(user2)
                     .content("What's happening on here!")
                     .build();
 
@@ -131,16 +143,16 @@ class ChatRepositoryImplTest {
         });
 
         // when
-        Chat randomChat = this.chatRepository.getRandom(userId);
-        Chat randomChat2 = this.chatRepository.getRandom(userId);
+        Chat randomChat = this.chatRepository.getRandom(user.getId());
+        Chat randomChat2 = this.chatRepository.getRandom(user.getId());
         while (randomChat.getId() == randomChat2.getId()) {
-            randomChat = this.chatRepository.getRandom(userId);
-            randomChat2 = this.chatRepository.getRandom(userId);
+            randomChat = this.chatRepository.getRandom(user.getId());
+            randomChat2 = this.chatRepository.getRandom(user.getId());
         }
 
         // then
-        assertThat(randomChat.getUserId()).isNotEqualTo(userId);
-        assertThat(randomChat2.getUserId()).isNotEqualTo(userId);
+        assertThat(randomChat.getUser().getId()).isNotEqualTo(user.getId());
+        assertThat(randomChat2.getUser().getId()).isNotEqualTo(user.getId());
         // A가 랜덤한 Chat을 찾을 때 A가 쓴 글을 빼고 찾아내는지 테스트
 
         assertThat(randomChat.getId()).isNotEqualTo(randomChat2.getId());
@@ -151,26 +163,24 @@ class ChatRepositoryImplTest {
     @DisplayName("랜덤하게 Chat 가져오기_실패 (조회하는 사람이 로그인 안 되어있음)")
     @Transactional
     void getRandom_fail_not_login() {
-        assertThatThrownBy(() -> this.chatRepository.getRandom(null))
-                .isInstanceOf(EmptyResultDataAccessException.class);
+        Assertions.assertNull(this.chatRepository.getRandom(null));
     }
 
     @Test
     @DisplayName("랜덤하게 Chat 가져오기_실패 (조회할 Chat이 없음)")
     @Transactional
     void getRandom_fail_not_found() {
-        Long userId = this.getUserId("test@gmail.com");
+        User user = this.getUser("test@gmail.com");
 
         Chat chat = Chat.builder()
-                .userId(userId)
+                .user(user)
                 .content("What's happening on here!")
                 .build();
 
         this.chatRepository.save(chat);
         // 내가 쓴 Chat은 있는데 남이 쓴 Chat은 없음
 
-        assertThatThrownBy(() -> this.chatRepository.getRandom(userId))
-                .isInstanceOf(EmptyResultDataAccessException.class);
+        Assertions.assertNull(this.chatRepository.getRandom(user.getId()));
     }
 
     @Test
@@ -178,29 +188,27 @@ class ChatRepositoryImplTest {
     @Transactional
     void delete_success() {
         // given
-        Long userId = this.getUserId("test@gmail.com");
+        User user = this.getUser("test@gmail.com");
 
         Chat chat = Chat.builder()
-                .userId(userId)
+                .user(user)
                 .content("What's happening on here!")
                 .build();
 
-        Long saveId = this.chatRepository.save(chat);
-        assertThat(this.chatRepository.findByChatId(saveId)).isNotNull();
+        Long saveId = this.chatRepository.save(chat).getId();
+        assertThat(this.chatRepository.findById(saveId).get()).isNotNull();
 
         // when
-        this.chatRepository.delete(saveId);
+        this.chatRepository.delete(chat);
 
         // then
-        assertThatThrownBy(() -> this.chatRepository.findByChatId(saveId))
-                .isInstanceOf(EmptyResultDataAccessException.class);
+        Assertions.assertFalse(this.chatRepository.findById(saveId).isPresent());
     }
 
-    private Long getUserId(String userEmail) {
+    private User getUser(String userEmail) {
         User user = new User(null, userEmail, "test");
-
         this.userRepository.registration(user);
-        User findUser = this.userRepository.findByUserEmail(userEmail);
-        return findUser.getId();
+
+        return user;
     }
 }

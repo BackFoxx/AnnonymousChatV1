@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import toyproject.annonymouschat.User.dto.UserLoginDto;
 import toyproject.annonymouschat.User.dto.UserRegistrationDto;
 import toyproject.annonymouschat.User.dto.UserResponseDto;
-import toyproject.annonymouschat.User.model.User;
+import toyproject.annonymouschat.User.entity.User;
 import toyproject.annonymouschat.User.service.UserService;
 import toyproject.annonymouschat.User.session.UserSession;
 import toyproject.annonymouschat.config.exception.DuplicateUserException;

@@ -5,16 +5,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.ui.Model;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import toyproject.annonymouschat.User.model.User;
-import toyproject.annonymouschat.chat.dto.ChatDeleteDto;
-import toyproject.annonymouschat.chat.dto.ChatPostSaveDeleteResponseDto;
-import toyproject.annonymouschat.chat.dto.ChatSaveDto;
-import toyproject.annonymouschat.chat.dto.MyChatPostBoxResponseDto;
+import toyproject.annonymouschat.User.entity.User;
+import toyproject.annonymouschat.chat.dto.*;
 import toyproject.annonymouschat.chat.model.Chat;
 import toyproject.annonymouschat.chat.service.ChatService;
 
@@ -29,9 +25,12 @@ public class ChatController {
     private final ChatService chatService;
 
     @GetMapping("/postbox")
-    public Chat getRandom(@RequestAttribute("user") User user) {
+    public GetRandomResponseDto getRandom(@RequestAttribute("user") User user) {
         try {
-            return chatService.getRandom(user.getId());
+            Chat randomChat = chatService.getRandom(user.getId());
+            if (randomChat == null) return null;
+
+            return GetRandomResponseDto.toDto(randomChat);
         } catch (EmptyResultDataAccessException e) {
             return null;
         }

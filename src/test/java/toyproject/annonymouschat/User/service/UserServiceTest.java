@@ -7,7 +7,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import toyproject.annonymouschat.User.dto.UserLoginDto;
 import toyproject.annonymouschat.User.dto.UserRegistrationDto;
-import toyproject.annonymouschat.User.model.User;
+import toyproject.annonymouschat.User.entity.User;
 import toyproject.annonymouschat.config.exception.DuplicateUserException;
 
 import java.util.NoSuchElementException;
@@ -49,10 +49,10 @@ class UserServiceTest {
         userDto.setPassword("testpassword");
 
         // when
-        userService.registration(userDto);
-
-        // then
+        this.userService.registration(userDto);
         assertThatThrownBy(() -> userService.registration(userDto)) // 중복된 이메일
+
+                // then
                 .isInstanceOf(DuplicateUserException.class)
                 .hasMessage("이미 사용자가 존재하는 이메일입니다.");
     }

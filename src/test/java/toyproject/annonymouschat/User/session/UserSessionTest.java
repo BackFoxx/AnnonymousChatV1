@@ -4,7 +4,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-import toyproject.annonymouschat.User.model.User;
+import toyproject.annonymouschat.User.entity.User;
 
 import javax.servlet.http.Cookie;
 

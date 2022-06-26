@@ -2,19 +2,22 @@ package toyproject.annonymouschat.User.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import toyproject.annonymouschat.User.dto.UserLoginDto;
 import toyproject.annonymouschat.User.dto.UserRegistrationDto;
-import toyproject.annonymouschat.User.model.User;
+import toyproject.annonymouschat.User.entity.User;
 import toyproject.annonymouschat.User.repository.UserRepository;
 import toyproject.annonymouschat.config.exception.DuplicateUserException;
 
 import java.util.NoSuchElementException;
 
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
 
+    @Transactional
     public String registration(UserRegistrationDto dto) throws DuplicateUserException {
         User userByEmail = userRepository.findByUserEmail(dto.getUserEmail());
         if (userByEmail != null) {

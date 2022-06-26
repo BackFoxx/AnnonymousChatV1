@@ -2,12 +2,11 @@ package toyproject.annonymouschat.config.filter;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.PatternMatchUtils;
-import toyproject.annonymouschat.User.model.User;
+import toyproject.annonymouschat.User.entity.User;
 import toyproject.annonymouschat.User.session.UserSession;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 @Slf4j
 public class LoginFilter implements Filter {

@@ -20,7 +20,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.util.NestedServletException;
-import toyproject.annonymouschat.User.model.User;
+import toyproject.annonymouschat.User.entity.User;
 import toyproject.annonymouschat.User.repository.UserRepository;
 import toyproject.annonymouschat.chat.model.Chat;
 import toyproject.annonymouschat.chat.repository.ChatRepository;
@@ -30,6 +30,9 @@ import toyproject.annonymouschat.replychat.model.ReplyChat;
 import toyproject.annonymouschat.replychat.repository.ReplyChatRepository;
 
 import java.nio.charset.StandardCharsets;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.util.Date;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,8 +45,7 @@ import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @ExtendWith({RestDocumentationExtension.class, SpringExtension.class, MockitoExtension.class})
@@ -82,15 +84,15 @@ class ReplyControllerTest {
     void getAllReplyByChatId_success() throws Exception {
         // given
         User user = this.getUser("test@gmail.com");
-        Long chatId = this.getChatId(user);
+        Chat chat = this.getChat(user);
 
-        this.saveReply(user, chatId);
-        this.saveReply(user, chatId);
-        this.saveReply(user, chatId);
+        this.saveReply(user, chat);
+        this.saveReply(user, chat);
+        this.saveReply(user, chat);
         /* 3개 저장 */
 
         // when
-        mockMvc.perform(get("/reply/replies/{chatId}", chatId)
+        mockMvc.perform(get("/reply/replies/{chatId}", chat.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8))
@@ -111,10 +113,10 @@ class ReplyControllerTest {
     void getAllReplyByChatId_success_0() throws Exception {
         // given
         User user = this.getUser("test@gmail.com");
-        Long chatId = this.getChatId(user);
+        Chat chat = this.getChat(user);
 
         // when
-        mockMvc.perform(get("/reply/replies/{chatId}", chatId)
+        mockMvc.perform(get("/reply/replies/{chatId}", chat.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
@@ -130,11 +132,11 @@ class ReplyControllerTest {
         User user = this.getUser("test@gmail.com");
         User user2 = this.getUser("test2@gmail.com");
 
-        Long chatId = this.getChatId(user2);
+        Chat chat = this.getChat(user2);
 
-        this.saveReply(user, chatId);
-        this.saveReply(user2, chatId);
-        this.saveReply(user2, chatId);
+        this.saveReply(user, chat);
+        this.saveReply(user2, chat);
+        this.saveReply(user2, chat);
 
         // when
         mockMvc.perform(get("/reply/my-reply")
@@ -190,8 +192,8 @@ class ReplyControllerTest {
     void replyInfo_success() throws Exception {
         // given
         User user = this.getUser("test@gmail.com");
-        Long chatId = this.getChatId(user);
-        this.saveReply(user, chatId);
+        Chat chat = this.getChat(user);
+        this.saveReply(user, chat);
 
         ReplyChat findReply = this.replyChatRepository.findAllByUserId(user.getId()).get(0);
         Long replyId = findReply.getId();
@@ -219,15 +221,12 @@ class ReplyControllerTest {
     @DisplayName("reply id로 reply 정보 가져오기_실패 (해당하는 reply 없음)")
     @Transactional
     void replyInfo_success_fail_notfound() throws Exception {
-        assertThatThrownBy(() -> {
-            mockMvc.perform(get("/reply/my-reply/info/{reply_id}", -1)
-                            /* 존재하지 않는 reply 아이디*/
-                            .accept(MediaType.APPLICATION_JSON))
-
-                    .andDo(print())
-                    .andExpect(status().isOk());
-        }).isInstanceOf(NestedServletException.class)
-                .hasRootCauseInstanceOf(IndexOutOfBoundsException.class);
+        mockMvc.perform(get("/reply/my-reply/info/{reply_id}", -1)
+                        /* 존재하지 않는 reply 아이디*/
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().string(""));
     }
 
     @Test
@@ -236,8 +235,8 @@ class ReplyControllerTest {
     void deleteReply_success() throws Exception {
         // given
         User user = this.getUser("test@gmail.com");
-        Long chatId = this.getChatId(user);
-        this.saveReply(user, chatId);
+        Chat chat = this.getChat(user);
+        this.saveReply(user, chat);
 
         List<ReplyChat> findReplyList = this.replyChatRepository.findAllByUserId(user.getId());
         assertThat(findReplyList).hasSize(1);
@@ -282,11 +281,11 @@ class ReplyControllerTest {
     void saveReply_success() throws Exception {
         // given
         User user = this.getUser("test@gmail.com");
-        Long chatId = this.getChatId(user);
+        Chat chat = this.getChat(user);
 
         ReplyChatSaveDto chatSaveDto = new ReplyChatSaveDto();
 //        chatSaveDto.setUserId(user.getId());
-        chatSaveDto.setChatId(chatId);
+        chatSaveDto.setChatId(chat.getId());
         chatSaveDto.setContent("I'm here");
 
         // when
@@ -314,7 +313,7 @@ class ReplyControllerTest {
                                 fieldWithPath("message").description("저장 성공 메시지 또는 에러 메시지입니다.")
                         )));
 
-        List<ReplyChat> replyChatList = this.replyChatRepository.findAllByChatId(chatId);
+        List<ReplyChat> replyChatList = this.replyChatRepository.findAllByChatId(chat.getId());
         assertThat(replyChatList).hasSize(1);
         /* 저장이 잘 되어있는지 확인 */
     }
@@ -376,14 +375,15 @@ class ReplyControllerTest {
                 });
     }
 
-    private void saveReply(User user, Long chatId) {
+    private void saveReply(User user, Chat chat) {
         ReplyChat replyChat = ReplyChat.builder()
-                .userId(user.getId())
-                .chatId(chatId)
+                .createDate(Date.from(Instant.now()))
+                .user(user)
+                .chat(chat)
                 .content("I'm Reply")
                 .build();
 
-        this.replyChatRepository.saveReply(replyChat);
+        this.replyChatRepository.save(replyChat);
     }
 
     private User getUser(String userEmail) {
@@ -393,12 +393,12 @@ class ReplyControllerTest {
         return this.userRepository.findByUserEmail(userEmail);
     }
 
-    private Long getChatId(User user) {
+    private Chat getChat(User user) {
         Chat chat = Chat.builder()
-                .userId(user.getId())
                 .content("I'm random one")
+                .createDate(Timestamp.from(Instant.now()))
+                .user(user)
                 .build();
-
         return this.chatRepository.save(chat);
     }
 }

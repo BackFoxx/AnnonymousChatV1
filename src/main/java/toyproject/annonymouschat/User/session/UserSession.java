@@ -1,7 +1,7 @@
 package toyproject.annonymouschat.User.session;
 
 import org.springframework.stereotype.Component;
-import toyproject.annonymouschat.User.model.User;
+import toyproject.annonymouschat.User.entity.User;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;

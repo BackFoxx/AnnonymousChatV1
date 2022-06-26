@@ -2,6 +2,9 @@ package toyproject.annonymouschat.replychat.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import toyproject.annonymouschat.User.repository.UserRepository;
+import toyproject.annonymouschat.chat.repository.ChatRepository;
 import toyproject.annonymouschat.replychat.dto.*;
 import toyproject.annonymouschat.replychat.model.ReplyChat;
 import toyproject.annonymouschat.replychat.repository.ReplyChatRepository;
@@ -10,22 +13,26 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 @Service
 public class ReplyChatService {
-    private final ReplyChatRepository repository;
+    private final ReplyChatRepository replyChatRepository;
+    private final UserRepository userRepository;
+    private final ChatRepository chatRepository;
 
+    @Transactional
     public void saveReply(ReplyChatSaveDto dto) {
-
         ReplyChat replyChat = ReplyChat.builder()
-                .userId(dto.getUserId())
-                .chatId(dto.getChatId())
+                .user(userRepository.findById(dto.getUserId()).get())
+                .chat(chatRepository.findById(dto.getChatId()).get())
                 .content(dto.getContent())
                 .build();
 
-        repository.saveReply(replyChat);
+        replyChatRepository.save(replyChat);
     }
+
     public List<RepliesByChatIdResponseDto> findAllByChatId(Long chatId) {
-        List<ReplyChat> replyList = repository.findAllByChatId(chatId);
+        List<ReplyChat> replyList = replyChatRepository.findAllByChatId(chatId);
 
         List<RepliesByChatIdResponseDto> responseList = new ArrayList<>();
         replyList.forEach(reply -> {
@@ -37,8 +44,9 @@ public class ReplyChatService {
 
         return responseList;
     }
+
     public List<RepliesByUserIdResponseDto> findAllByUserId(RepliesByUserIdDto userIdDto) {
-        List<ReplyChat> findList = repository.findAllByUserId(userIdDto.getUserId());
+        List<ReplyChat> findList = replyChatRepository.findAllByUserId(userIdDto.getUserId());
 
         List<RepliesByUserIdResponseDto> responseList = new ArrayList<>();
         findList.forEach(reply -> {
@@ -53,11 +61,13 @@ public class ReplyChatService {
         return responseList;
     }
 
+    @Transactional
     public void deleteReply(ReplyDeleteDto dto) {
-        repository.deleteReply(dto.getReplyId());
+
+        replyChatRepository.deleteById(dto.getReplyId());
     }
 
     public ReplyInfo replyInfo(Long replyId) {
-        return repository.replyInfo(replyId);
+        return replyChatRepository.replyInfo(replyId);
     }
 }

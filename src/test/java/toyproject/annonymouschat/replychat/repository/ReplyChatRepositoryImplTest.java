@@ -7,13 +7,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.transaction.annotation.Transactional;
-import toyproject.annonymouschat.User.model.User;
+import toyproject.annonymouschat.User.entity.User;
 import toyproject.annonymouschat.User.repository.UserRepository;
 import toyproject.annonymouschat.chat.model.Chat;
 import toyproject.annonymouschat.chat.repository.ChatRepository;
 import toyproject.annonymouschat.replychat.dto.*;
 import toyproject.annonymouschat.replychat.model.ReplyChat;
 
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,9 +39,9 @@ class ReplyChatRepositoryImplTest {
     @Transactional
     void saveReply_success() {
         User user = this.getUser("test@gmail.com");
-        Long chatId = this.getChatId(user);
+        Chat chat = this.getChat(user);
 
-        this.saveReply(user, chatId);
+        this.saveReply(user, chat);
 
         ReplyChat savedReply = this.replyChatRepository.findAllByUserId(user.getId()).get(0);
         assertThat(savedReply.getContent()).isEqualTo("I'm Reply");
@@ -50,14 +52,14 @@ class ReplyChatRepositoryImplTest {
     @Transactional
     void findAllByChatId_success() {
         User user = this.getUser("test@gmail.com");
-        Long AChatId = this.getChatId(user);
-        Long BChatId = this.getChatId(user);
-        this.saveReply(user, AChatId);
-        this.saveReply(user, AChatId);
-        this.saveReply(user, BChatId);
+        Chat chatA = this.getChat(user);
+        Chat chatB = this.getChat(user);
+        this.saveReply(user, chatA);
+        this.saveReply(user, chatA);
+        this.saveReply(user, chatB);
         // A에 대한 reply 2개와 B에 대한 reply 1개
 
-        List<ReplyChat> findReplyList = this.replyChatRepository.findAllByChatId(AChatId);
+        List<ReplyChat> findReplyList = this.replyChatRepository.findAllByChatId(chatA.getId());
         assertThat(findReplyList).hasSize(2);
     }
 
@@ -80,11 +82,11 @@ class ReplyChatRepositoryImplTest {
     void findAllByUserID() {
         User user = this.getUser("test@gmail.com");
         User user2 = this.getUser("test2@gmail.com");
-        Long chatId = this.getChatId(user);
+        Chat chat = this.getChat(user);
 
-        this.saveReply(user, chatId);
-        this.saveReply(user, chatId);
-        this.saveReply(user2, chatId);
+        this.saveReply(user, chat);
+        this.saveReply(user, chat);
+        this.saveReply(user2, chat);
         /* 내가 쓴 글 2개와 타인이 쓴 글 1개 */
 
         List<ReplyChat> findReplyDto = this.replyChatRepository.findAllByUserId(user.getId());
@@ -117,9 +119,9 @@ class ReplyChatRepositoryImplTest {
     void deleteReply_success() {
         // given
         User user = this.getUser("test@gmail.com");
-        Long chatId = this.getChatId(user);
+        Chat chat = this.getChat(user);
 
-        this.saveReply(user, chatId);
+        this.saveReply(user, chat);
 
         List<ReplyChat> findReplyList
                 = this.replyChatRepository.findAllByUserId(user.getId());
@@ -130,7 +132,7 @@ class ReplyChatRepositoryImplTest {
         // when
         Long replyId = findReplyList.get(0).getId();
 
-        this.replyChatRepository.deleteReply(replyId);
+        this.replyChatRepository.deleteById(replyId);
 
         // then
         findReplyList = this.replyChatRepository.findAllByUserId(user.getId());
@@ -144,10 +146,9 @@ class ReplyChatRepositoryImplTest {
     void replyInfo_success(@Autowired ChatRepository chatRepository) {
         // given
         User user = this.getUser("test@gmail.com");
-        Long chatId = this.getChatId(user);
-        Chat chat = chatRepository.findByChatId(chatId);
+        Chat chat = this.getChat(user);
 
-        this.saveReply(user, chatId);
+        this.saveReply(user, chat);
 
         List<ReplyChat> findReplyList
                 = this.replyChatRepository.findAllByUserId(user.getId());
@@ -161,14 +162,14 @@ class ReplyChatRepositoryImplTest {
         assertThat(replyInfo.getChatContent()).isEqualTo(chat.getContent());
     }
 
-    private void saveReply(User user, Long chatId) {
+    private void saveReply(User user, Chat chat) {
         ReplyChat replyChat = ReplyChat.builder()
-                .userId(user.getId())
-                .chatId(chatId)
+                .user(user)
+                .chat(chat)
                 .content("I'm Reply")
                 .build();
 
-        this.replyChatRepository.saveReply(replyChat);
+        this.replyChatRepository.save(replyChat);
     }
 
     private User getUser(String userEmail) {
@@ -178,12 +179,22 @@ class ReplyChatRepositoryImplTest {
         return this.userRepository.findByUserEmail(userEmail);
     }
 
-    private Long getChatId(User user) {
+    private Chat getChat(User user) {
         Chat chat = Chat.builder()
-                .userId(user.getId())
                 .content("I'm random one")
+                .createDate(Timestamp.from(Instant.now()))
+                .user(user)
                 .build();
 
         return this.chatRepository.save(chat);
+    }
+
+    private Long getChatId(User user) {
+        Chat chat = Chat.builder()
+                .user(user)
+                .content("I'm random one")
+                .build();
+
+        return this.chatRepository.save(chat).getId();
     }
 }

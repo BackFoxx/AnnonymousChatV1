@@ -21,7 +21,7 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.filter.CharacterEncodingFilter;
 import toyproject.annonymouschat.User.dto.UserLoginDto;
 import toyproject.annonymouschat.User.dto.UserRegistrationDto;
-import toyproject.annonymouschat.User.model.User;
+import toyproject.annonymouschat.User.entity.User;
 import toyproject.annonymouschat.User.repository.UserRepository;
 
 import javax.servlet.http.Cookie;
@@ -36,6 +36,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
+@Transactional
 @ExtendWith({RestDocumentationExtension.class, SpringExtension.class})
 class UserControllerTest {
 
@@ -62,7 +63,6 @@ class UserControllerTest {
 
     @Test
     @DisplayName("회원가입_성공")
-    @Transactional
     void registration_success() throws Exception {
         // given
         UserRegistrationDto registrationDto = new UserRegistrationDto();
@@ -94,7 +94,6 @@ class UserControllerTest {
 
     @Test
     @DisplayName("회원가입_실패 (이미 가입된 이메일)")
-    @Transactional
     void registration_fail_duplicatedEmail(@Autowired UserRepository userRepository) throws Exception {
         // given
         User user = new User(null, "test@gmail.com", "password");
@@ -128,7 +127,6 @@ class UserControllerTest {
     @ParameterizedTest(name = "{displayName} - {2}")
     @MethodSource("paramsForRegistration_fail_validation")
     @DisplayName("회원가입_실패 (양식 검증 실패)")
-    @Transactional
     void registration_fail_validation(String userEmail, String password, String errorMessage) throws Exception {
         // given
         UserRegistrationDto registrationDto = new UserRegistrationDto();
@@ -149,7 +147,6 @@ class UserControllerTest {
 
     @Test
     @DisplayName("로그인_성공")
-    @Transactional
     void login_success(@Autowired UserRepository userRepository) throws Exception {
         // given
         String userEmail = "test@gmail.com";
@@ -193,7 +190,6 @@ class UserControllerTest {
     @ParameterizedTest(name = "{displayName} - {2}")
     @MethodSource("paramsForLogin_fail_validation")
     @DisplayName("로그인_실패 (검증 오류)")
-    @Transactional
     void login_fail_validation(String userEmail, String password, String errorMessage) throws Exception {
         // given
         UserLoginDto userLoginDto = new UserLoginDto();
@@ -214,7 +210,6 @@ class UserControllerTest {
 
     @Test
     @DisplayName("로그아웃_성공")
-    @Transactional
     void logout_Success() throws Exception {
         //given & when
         mockMvc.perform(get("/logout")

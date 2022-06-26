@@ -6,13 +6,14 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.sql.Timestamp;
+import java.util.Date;
 
 @Setter
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 public class ReplyInfo {
-    private Timestamp createDate;
+    private Date createDate;
     private String chatContent;
-    private Timestamp chatCreateDate;
+    private Date chatCreateDate;
 }

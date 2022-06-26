@@ -9,8 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.restdocs.RestDocumentationExtension;
 import org.springframework.transaction.annotation.Transactional;
-import toyproject.annonymouschat.User.dto.UserRegistrationDto;
-import toyproject.annonymouschat.User.model.User;
+import toyproject.annonymouschat.User.entity.User;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
